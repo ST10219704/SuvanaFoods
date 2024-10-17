@@ -1,132 +1,161 @@
 ﻿@{
-    <!-- The home page for employees  -->
-    <!-- This was adapted from W3schools-->
-    <!-- Link: https://www.w3schools.com/html/html_css.asp-->
-    ViewData["Title"] = "Admin Home Page";
-    var employeeUsername = Context.Session.GetString("Username") ?? "Admin";
+    ViewData["Title"] = "Employee Dashboard";  // Title for this specific page
 }
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewData["Title"]</title>
-    <link rel="stylesheet" href="~/css/site.css" />
-    <style>
-        body, html {
-            height: 100%;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            color: #fff;
-            display: flex;
-            flex-direction: column;
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"> <!-- Link to Google Fonts -->
+
+<div class="employee-dashboard">
+    <div class="sidebar" id="sidebar">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="@Url.Action("Index", "Dashboard")">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-list"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>Update Status</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="toggle-btn" id="toggle-btn">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="content">
+        <h1>Welcome to the Admin Dashboard</h1>
+        <p>This is where employees can manage their operations.</p>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');
+    });
+</script>
+
+<style>
+    body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #f0f0f0; /* Light gray background */
+        font-family: 'Poppins', sans-serif; /* Apply custom font */
+    }
+
+    .sidebar {
+        height: calc(100% - 50px); /* Adjust height to account for the top navbar */
+        background-color: #343a40;
+        min-width: 250px;
+        max-width: 250px;
+        transition: all 0.3s ease;
+        position: fixed; /* Sidebar docked to the left */
+        left: 0;
+        top: 75px; /* Push the sidebar down by 50px to avoid navbar collision */
+        bottom: 0;
+        overflow-y: auto; /* Allow vertical scrolling if needed */
+    }
+
+        .sidebar .nav-item {
+            padding: 15px;
         }
 
-        header {
-            width: 100%;
-            padding: 20px 10%;
-            background: rgba(255, 255, 255, 0.9);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: fixed;
-            top: 0;
-            left: 0;
-            z-index: 10;
+            .sidebar .nav-item a {
+                color: #fff;
+                text-decoration: none;
+            }
+
+                .sidebar .nav-item a:hover {
+                    background-color: #495057;
+                    border-radius: 5px;
+                }
+
+        .sidebar.collapsed {
+            min-width: 80px;
+            max-width: 80px;
         }
 
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
+    .content {
+        margin-left: 250px; /* Adjust margin to avoid overlap with the sidebar */
+        flex-grow: 1;
+        padding: 20px;
+        text-align: center; /* Center the text */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .content h1 {
+            margin-top: 50px; /* Push content slightly down */
+            font-weight: 600;
+            font-size: 2.5rem;
             color: #333;
         }
 
-        nav {
-            display: flex;
-            align-items: center;
-            gap: 20px;
+        .content p {
+            font-size: 1.2rem;
+            color: #666;
         }
 
-            nav a {
-                text-decoration: none;
-                color: #333;
-                font-size: 18px;
-                transition: color 0.3s;
-            }
+    .toggle-btn {
+        position: absolute;
+        top: 10px;
+        left: 250px;
+        cursor: pointer;
+    }
 
-                nav a:hover {
-                    color: #007BFF;
-                }
+    .sidebar.collapsed + .toggle-btn {
+        left: 80px;
+    }
 
-        .main-content {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            flex: 1;
-            padding-top: 100px; 
-        }
+    .sidebar.collapsed .nav-item a {
+        text-align: center;
+    }
 
-        .content {
-            text-align: center;
-            width: 80%;
-            color: black; 
-        }
+    .sidebar.collapsed .nav-item span {
+        display: none;
+    }
 
-            .content h1 {
-                font-size: 3em;
-                margin-bottom: 0.5em;
-                text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7); 
-            }
-
-            .content p {
-                font-size: 1.2em;
-                margin-bottom: 1.5em;
-                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7); 
-            }
-
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 20px;
-        }
-
-            .buttons a {
-                background-color: #3DAD42;
-                color: white;
-                padding: 15px 30px;
-                text-decoration: none;
-                border-radius: 5px;
-                transition: background-color 0.3s, transform 0.3s;
-                box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
-            }
-
-                .buttons a:hover {
-                    background-color: #778778;
-                    transform: scale(1.05);
-                }
-
-        .logo-image {
-            width: 250px;
-            margin-bottom: 10px;
-        }
-    </style>
-</head>
-<body>
-
-    <div class="bg-image"></div>
-    <div class="main-content">
-        <div class="content">
-            <h1 class="display-4">Welcome, @employeeUsername</h1>
-            <img src="~/images/logo.jpg" alt="Agri-Energy Connect Logo" class="logo-image">
-            <p> </p>
-            <p>What would you like to do?</p>
-            <div class="buttons">
-                <a href="/Employee/Create">Add Farmer</a>
-                <a href="/Employee/SearchFarmer">Search Farmer</a>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+    .nav-item i {
+        margin-right: 10px;
+    }
+</style>
