@@ -1,0 +1,121 @@
+﻿@model AgriEnergyConnect.Models.Product
+<!-- A View accessible to Farmers for adding a product -->
+<!-- This was adapted from W3schools-->
+<!-- Link: https://www.w3schools.com/html/html_css.asp-->
+@{
+    ViewData["Title"] = "Add Product";
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewData["Title"] - AgriEnergyConnect</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <style>
+        body, html {
+            height: 100%;
+            margin: 0;
+            font-family: Arial, sans-serif;
+            color: black;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .main-content {
+            padding-top: 50px; 
+        }
+
+        .form-container {
+            background-color: #f8f9fa;
+            padding: 30px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-title {
+            margin-bottom: 20px;
+        }
+
+        .btn-primary {
+            background-color: #3DAD42;
+            color: white;
+            border-color: #3DAD42;
+        }
+
+            .btn-primary:hover {
+                background-color: #778778;
+                border-color: #778778;
+            }
+
+        .alert-success {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container main-content">
+        <h1 class="form-title text-center">Add Product</h1>
+        <h6 class="text-center mb-4">Add your product with all the necessary details</h6>
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="form-container">
+                    <form asp-action="AddProduct" method="post">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="form-group">
+                            <label asp-for="ProName" class="control-label"></label>
+                            <input asp-for="ProName" class="form-control" placeholder="Enter product name" />
+                            <span asp-validation-for="ProName" class="text-danger"></span>
+                        </div>
+                        <p></p>
+                        <div class="form-group">
+                            <label asp-for="ProCategory" class="control-label"></label>
+                            <select asp-for="ProCategory" class="form-control">
+                                <option value="">Select a category</option>
+                                <option value="Crops">Crops</option>
+                                <option value="Fertilizers">Fertilizers</option>
+                                <option value="Irrigation">Irrigation</option>
+                                <option value="Livestock">Livestock</option>
+                                <option value="Machinery & Tools">Machinery & Tools</option>
+                                <option value="Organic Farming">Organic Farming</option>
+                                <option value="Other">Other</option>
+                                <option value="Pesticides">Pesticides</option>
+                                <option value="Seeds">Seeds</option>
+                                <option value="Training & Resources">Training & Resources</option>
+                            </select>
+                            <span asp-validation-for="ProCategory" class="text-danger"></span>
+                        </div>
+                        <p></p>
+                        <div class="form-group">
+                            <label asp-for="ProProductionDate" class="control-label"></label>
+                            <input asp-for="ProProductionDate" class="form-control" type="date" placeholder="Enter production date" />
+                            <span asp-validation-for="ProProductionDate" class="text-danger"></span>
+                        </div>
+                        <p></p>
+                        <div class="form-group text-center">
+                            <input type="submit" value="Add Product" class="btn btn-primary btn-block w-100" />
+                        </div>
+                    </form>
+                </div>
+                @if (TempData["CreateStatus"] != null)
+                {
+                    <div class="alert alert-success text-center">
+                        @TempData["CreateStatus"]
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @section Scripts {
+        @{
+            await Html.RenderPartialAsync("_ValidationScriptsPartial");
+        }
+    }
+</body>
+</html>

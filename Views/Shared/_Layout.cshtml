@@ -1,0 +1,124 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AgriEnergyConnect</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AgriEnergyConnect.styles.css" asp-append-version="true" />
+    <style>
+        /* Keep your existing styling */
+        .app-header {
+            width: 100%;
+            padding: 20px 10%;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 10;
+        }
+
+        .app-name {
+            font-size: 20px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .app-header nav {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+            .app-header nav a {
+                text-decoration: none;
+                color: #333;
+                font-size: 18px;
+                transition: color 0.3s;
+            }
+
+                .app-header nav a:hover {
+                    color: #007BFF;
+                }
+
+        /* Flexbox adjustments to position the nav elements */
+        .nav-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+        }
+
+        .nav-middle {
+            display: flex;
+            gap: 20px; /* Adds space between Home, Menu, and About links */
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-header">
+        <!-- Main Heading on the Right -->
+        <div class="app-name">SuvanaFoods</div>
+
+        <!-- Navigation Bar -->
+        <nav class="nav-bar">
+            @* Middle Section Tabs (Home, Menu, About) *@
+            <div class="nav-middle">
+                <a href="/">Home</a>
+                <a href="/">Menu</a>
+                <a href="/">About</a>
+            </div>
+
+            @* Right Section Tabs (Login, Logout, etc.) *@
+            <div class="nav-right">
+                @{
+                    var isLoggedIn = Context.Session.GetString("IsLoggedIn") == "true";
+                    var userRole = Context.Session.GetString("UserRole");
+
+                    if (!isLoggedIn)
+                    {
+                        <a href="/Customer/Register">Register</a>
+                        <a href="/Customer/Login">Login as Customer</a>
+                        <a href="/Admin/Login">Login as Admin</a>
+                    }
+                    else if (userRole == "Admin")
+                    {
+                        <a href="/Employee/Create">Add Farmer</a>
+                        <a href="/Employee/SearchFarmer">Search Farmer</a>
+                        <a href="/Admin/Logout">Logout</a>
+                    }
+                    else if (userRole == "Customer")
+                    {
+                        <a href="/Farmer/AddProduct">Add Product</a>
+                        <a href="/Farmer/ViewProducts">View Products</a>
+                        <a href="/Customer/Logout">Logout</a>
+                    }
+                }
+            </div>
+        </nav>
+    </div>
+
+    <div class="container mt-5">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

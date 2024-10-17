@@ -1,0 +1,148 @@
+﻿@model SuvanaFoods.Models.CustomerRegistration
+
+@{
+    ViewBag.Title = "Customer Registration";
+}
+
+<style>
+    /* Custom styles for the registration form */
+
+/* Margin to separate the heading from the navbar */
+.container {
+    margin-top: 5rem;
+    margin-bottom: 2rem;
+}
+
+/* Styling for the card shadow and form elements */
+.card {
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+/* Button customization */
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* Aligning the input fields, labels, and validation messages */
+.form-label {
+    font-weight: 500;
+    color: #495057;
+}
+
+.form-control {
+    border-radius: 4px;
+    box-shadow: none;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    box-shadow: none;
+    border-color: #80bdff;
+    outline: none;
+}
+
+/* Adjusting the validation error message */
+.text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* Margin adjustments for form spacing */
+.form-group {
+    margin-bottom: 1rem;
+}
+
+/* Card padding */
+.card-body {
+    padding: 2rem;
+}
+
+/* Form heading style */
+h2 {
+    font-size: 1.75rem;
+    color: #343a40;
+    margin-bottom: 1.5rem;
+}
+
+}
+
+</style>
+
+<!-- Spacing added to move the title below the navbar -->
+<div class="container mt-10 mb-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="text-center mb-4">
+                <h2>Customer Registration</h2>
+            </div>
+            <div class="card shadow-lg border-0">
+                <div class="card-body p-4">
+                    <form asp-action="Register" method="post">
+                        @* Anti-forgery token for security *@
+                        @Html.AntiForgeryToken()
+
+                        <div class="form-group mb-3">
+                            <label for="Name" class="form-label">Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter your name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Email" class="form-label">Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Mobile" class="form-label">Mobile (Optional)</label>
+                            <input asp-for="Mobile" class="form-control" placeholder="Enter your mobile number" />
+                            <span asp-validation-for="Mobile" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Address" class="form-label">Address (Optional)</label>
+                            <input asp-for="Address" class="form-control" placeholder="Enter your address" />
+                            <span asp-validation-for="Address" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Username" class="form-label">Username</label>
+                            <input asp-for="Username" class="form-control" placeholder="Enter a username" />
+                            <span asp-validation-for="Username" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="Password" class="form-label">Password</label>
+                            <input asp-for="Password" class="form-control" placeholder="Enter a password" type="password" />
+                            <span asp-validation-for="Password" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-4">
+                            <label for="ConfirmPassword" class="form-label">Confirm Password</label>
+                            <input asp-for="ConfirmPassword" class="form-control" placeholder="Confirm your password" type="password" />
+                            <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+@section Scripts {
+    @* Client-side validation scripts *@
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}
