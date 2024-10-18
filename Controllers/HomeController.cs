@@ -28,7 +28,7 @@ namespace AgriEnergyConnect.Controllers
             }
             else if (userRole == "Admin")
             {
-                return View("EmployeeHome"); // The home screen view that will show if an employee is logged in
+                return View("AdminHome"); // The home screen view that will show if an employee is logged in
             }
             else if (userRole == "Customer")
             {

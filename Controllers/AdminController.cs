@@ -80,5 +80,6 @@ namespace SuvanaFoods.Controllers
             HttpContext.Session.Clear(); // The session is cleared 
             return RedirectToAction("Index", "Home");
         }
+
     }
 }

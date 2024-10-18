@@ -1,5 +1,6 @@
 ﻿using AgriEnergyConnect.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SuvanaFoods.Models;
 using System.Linq;
@@ -121,6 +122,104 @@ namespace SuvanaFoods.Controllers
         {
             HttpContext.Session.Clear(); // The session is cleared 
             return RedirectToAction("Index", "Home");
+        }
+
+        // GET: Customer/ViewProfile
+        [HttpGet]
+        public async Task<IActionResult> ViewProfile()
+        {
+            // Get the logged-in customer ID from session
+            if (!HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                return RedirectToAction("Login", "Customer");
+            }
+
+            int customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+
+            // Fetch the customer details from the database
+            var customer = await _context.Customers.FindAsync(customerId);
+
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return View(customer);
+        }
+
+        // GET: Customer/EditProfile
+        [HttpGet]
+        public async Task<IActionResult> EditProfile()
+        {
+            if (!HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                return RedirectToAction("Login", "Customer");
+            }
+
+            int customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+
+            var customer = await _context.Customers.FindAsync(customerId);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+
+            return View(customer);
+        }
+
+        // POST: Customer/EditProfile
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditProfile(Customer model)
+        {
+            if (!HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                return RedirectToAction("Login", "Customer");
+            }
+
+            int customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+
+            if (ModelState.IsValid)
+            {
+                var customer = await _context.Customers.FindAsync(customerId);
+
+                if (customer == null)
+                {
+                    return NotFound();
+                }
+
+                // Only update the fields that have changed
+                if (!string.IsNullOrEmpty(model.Name) && model.Name != customer.Name)
+                    customer.Name = model.Name;
+
+                if (!string.IsNullOrEmpty(model.Username) && model.Username != customer.Username)
+                    customer.Username = model.Username;
+
+                if (!string.IsNullOrEmpty(model.Email) && model.Email != customer.Email)
+                    customer.Email = model.Email;
+
+                if (!string.IsNullOrEmpty(model.Address) && model.Address != customer.Address)
+                    customer.Address = model.Address;
+
+                if (!string.IsNullOrEmpty(model.Mobile) && model.Mobile != customer.Mobile)
+                    customer.Mobile = model.Mobile;
+
+                if (!string.IsNullOrEmpty(model.Password))
+                    customer.Password = model.Password; // Hash the password in real scenarios
+
+                if (model.ImageUrl != null)
+                {
+                    // Assume you've handled file uploads somewhere, or keep the old image
+                    customer.ImageUrl = model.ImageUrl;
+                }
+
+                _context.Update(customer);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction(nameof(ViewProfile));
+            }
+
+            return View(model);
         }
     }
 }

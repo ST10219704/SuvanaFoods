@@ -1,0 +1,99 @@
+﻿@model SuvanaFoods.Models.Customer
+
+@{
+    ViewBag.Title = "User Information";
+}
+
+<div class="profile-container">
+    <h2>User Information</h2>
+
+    <div class="profile-header">
+        <img src="/images/profile-logo.png" alt="Profile Picture" class="profile-img" />
+        <div class="profile-info">
+            <h3>@Model.Name</h3>
+            <p>@Model.Username</p>
+            <p>@Model.Email</p>
+        </div>
+        <div class="profile-actions">
+            <a href="@Url.Action("EditProfile", "Customer")" class="btn btn-warning">Edit Details</a>
+        </div>
+    </div>
+
+    <div class="tabs">
+        <ul class="nav nav-tabs" id="profileTabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="basic-info-tab" data-toggle="tab" href="#basic-info" role="tab">Basic Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="history-tab" data-toggle="tab" href="#history" role="tab">Purchased History</a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="profileTabContent">
+            <div class="tab-pane fade show active" id="basic-info" role="tabpanel">
+                <table class="table">
+                    <tr>
+                        <th>Full Name</th>
+                        <td>@Model.Name</td>
+                    </tr>
+                    <tr>
+                        <th>Username</th>
+                        <td>@Model.Username</td>
+                    </tr>
+                    <tr>
+                        <th>Mobile No.</th>
+                        <td>@Model.Mobile</td>
+                    </tr>
+                    <tr>
+                        <th>Email Address</th>
+                        <td>@Model.Email</td>
+                    </tr>
+                    <tr>
+                        <th>Address</th>
+                        <td>@Model.Address</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="tab-pane fade" id="history" role="tabpanel">
+                <!-- Purchased history content can go here -->
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    body {
+        padding-top: 75px; /* This will push down the entire body content */
+    }
+
+    .profile-container {
+        width: 60%;
+        margin: 20px auto;
+    }
+
+    .profile-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        margin-right: 20px;
+    }
+
+    .profile-info {
+        flex-grow: 1;
+    }
+
+    .profile-actions {
+        margin-left: auto;
+    }
+
+    .tabs {
+        margin-top: 20px;
+    }
+</style>
