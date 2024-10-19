@@ -1,0 +1,59 @@
+﻿@model IEnumerable<SuvanaFoods.Models.Category>
+
+@{
+    ViewBag.Title = "Category Management";
+}
+
+<h2>Category Management</h2>
+
+<input type="text" id="searchCategory" placeholder="Search categories..." />
+
+<a href="@Url.Action("CreateCategory", "Admin")" class="btn btn-primary">Add New Category</a>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th>Is Active</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var category in Model)
+        {
+            <tr>
+                <td>@category.Name</td>
+                <td>@(category.IsActive == true ? "Active" : "Inactive")</td>
+                <td>
+                    <a href="@Url.Action("EditCategory", "Admin", new { id = category.CategoryId })" class="btn btn-warning">Edit</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@section Scripts {
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#searchCategory').on('keyup', function () {
+                var searchString = $(this).val();
+                $.ajax({
+                    url: '@Url.Action("Search", "Admin")',
+                    type: 'GET',
+                    data: { searchString: searchString },
+                    success: function (result) {
+                        $('tbody').empty();
+                        $.each(result, function (index, category) {
+                            var row = '<tr>' +
+                                '<td>' + category.name + '</td>' +
+                                '<td>' + (category.isActive ? "Active" : "Inactive") + '</td>' +
+                                '<td><a href="/Admin/EditCategory/' + category.categoryId + '" class="btn btn-warning">Edit</a></td>' +
+                                '</tr>';
+                            $('tbody').append(row);
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+}

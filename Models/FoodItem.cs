@@ -19,7 +19,7 @@ public partial class FoodItem
 
     public string? ImageUrl { get; set; }
 
-    public bool? IsActive { get; set; }
+    public bool IsActive { get; set; }
 
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
