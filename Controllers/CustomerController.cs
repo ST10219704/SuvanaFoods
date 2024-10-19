@@ -221,5 +221,16 @@ namespace SuvanaFoods.Controllers
 
             return View(model);
         }
+
+        public IActionResult Menu()
+        {
+            // Fetch all active food items from the database
+            var foodItems = _context.FoodItems
+                .Include(f => f.Category) // Include category data if needed
+                .Where(f => f.IsActive) // Only fetch active items
+                .ToList();
+
+            return View(foodItems);
+        }
     }
 }

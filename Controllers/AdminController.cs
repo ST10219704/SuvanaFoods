@@ -147,73 +147,37 @@ namespace SuvanaFoods.Controllers
         [HttpGet]
         public IActionResult AddFoodItem()
         {
-            // Fetch active categories for the dropdown
-            ViewBag.Categories = _context.Categories
-                                    .Where(c => c.IsActive == true)
-                                    .Select(c => new SelectListItem
-                                    {
-                                        Value = c.CategoryId.ToString(),
-                                        Text = c.Name
-                                    })
-                                    .ToList();
-
-            return View();
+            ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "Name");
+            ViewBag.FoodItems = _context.FoodItems.Include(f => f.Category).ToList();
+            return View(new FoodItem());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> AddFoodItem(FoodItem model, IFormFile ImageUrl, int selectedCategoryId)
+        public IActionResult AddFoodItem(FoodItem foodItem, IFormFile imageFile)
         {
             if (ModelState.IsValid)
             {
-                model.CategoryId = selectedCategoryId; // Ensure CategoryId is set
-
-                // Save the uploaded image to wwwroot/images/fooditems folder
-                if (ImageUrl != null && ImageUrl.Length > 0)
+                // Handle file upload here
+                if (imageFile != null && imageFile.Length > 0)
                 {
-                    var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/images/fooditems");
-
-                    if (!Directory.Exists(uploadPath))
+                    var filePath = Path.Combine("wwwroot/images", imageFile.FileName); // Make sure to create this directory
+                    using (var stream = new FileStream(filePath, FileMode.Create))
                     {
-                        Directory.CreateDirectory(uploadPath);
+                        imageFile.CopyTo(stream);
                     }
-
-                    var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(ImageUrl.FileName);
-                    var filePath = Path.Combine(uploadPath, uniqueFileName);
-
-                    using (var fileStream = new FileStream(filePath, FileMode.Create))
-                    {
-                        await ImageUrl.CopyToAsync(fileStream);
-                    }
-
-                    model.ImageUrl = "/images/fooditems/" + uniqueFileName;
+                    foodItem.ImageUrl = "/images/" + imageFile.FileName; // Save the relative path
                 }
 
-                try
-                {
-                    _context.FoodItems.Add(model);
-                    await _context.SaveChangesAsync();
-                    return RedirectToAction("Index", "FoodItem");
-                }
-                catch (Exception ex)
-                {
-                    // Log the exception for debugging
-                    ModelState.AddModelError("", $"Unable to save changes: {ex.Message}");
-                    Console.WriteLine($"Error: {ex.Message}"); // Simple console log for now
-                }
+                _context.FoodItems.Add(foodItem);
+                _context.SaveChanges();
+                return RedirectToAction("AddFoodItem");
             }
 
-            // Reload active categories in case of validation failure
-            ViewBag.Categories = _context.Categories
-                                        .Where(c => c.IsActive == true)
-                                        .Select(c => new SelectListItem
-                                        {
-                                            Value = c.CategoryId.ToString(),
-                                            Text = c.Name
-                                        })
-                                        .ToList();
-
-            return View(model);
+            // Reload categories and food items if validation fails
+            ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "Name");
+            ViewBag.FoodItems = _context.FoodItems.Include(f => f.Category).ToList();
+            return View(foodItem);
         }
 
 
