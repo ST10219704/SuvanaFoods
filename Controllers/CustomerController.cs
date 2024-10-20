@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using SuvanaFoods.Models;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace SuvanaFoods.Controllers
 {
@@ -63,9 +64,6 @@ namespace SuvanaFoods.Controllers
         }
 
         // For the farmer to log in
-        // This code was adapted from Netcode-Hub on YouTube
-        // Video name: Multi-Vendor App in ASP.NET MVC - 6 - Add Admin Login page.
-        // Link: https://www.youtube.com/watch?v=e2jrXvb1jGI&list=PL285LgYq_FoIpguOrV9XQqj_w9qjfZ0w0&index=11
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(CustomerLogin cus)
@@ -94,8 +92,7 @@ namespace SuvanaFoods.Controllers
                 }
                 else
                 {
-                    TempData["LoginStatus"] = "Invalid username or password. Please try again."; //If the login credentials are incorrect
-
+                    TempData["LoginStatus"] = "Invalid username or password. Please try again."; // If the login credentials are incorrect
                 }
             }
 
@@ -108,7 +105,6 @@ namespace SuvanaFoods.Controllers
             try
             {
                 var user = _context.Customers.FirstOrDefault(u => u.Username == username && u.Password == password);
-
                 return user?.CustomerId ?? -1;
             }
             catch (Exception ex)
@@ -231,6 +227,105 @@ namespace SuvanaFoods.Controllers
                 .ToList();
 
             return View(foodItems);
+        }
+
+        // Add item to cart
+        [HttpPost]
+        public async Task<IActionResult> AddToCart(int foodItemId)
+        {
+            if (HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+                var existingCartItem = await _context.Carts
+                    .FirstOrDefaultAsync(c => c.CustomerId == customerId && c.FoodItemId == foodItemId);
+
+                if (existingCartItem == null)
+                {
+                    var cartItem = new Cart
+                    {
+                        CustomerId = customerId,
+                        FoodItemId = foodItemId,
+                        Quantity = 1 // Set the initial quantity to 1
+                    };
+                    _context.Carts.Add(cartItem);
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true, message = "Item added to cart" });
+                }
+
+                return Json(new { success = false, message = "Item already in cart" });
+            }
+
+            return Json(new { success = false, message = "User not logged in" });
+        }
+
+
+        // Update quantity
+        [HttpPost]
+        public async Task<IActionResult> UpdateCartQuantity(int foodItemId, int quantity)
+        {
+            if (HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+                var cartItem = await _context.Carts.FirstOrDefaultAsync(c => c.CustomerId == customerId && c.FoodItemId == foodItemId);
+
+                if (cartItem != null)
+                {
+                    var foodItem = await _context.FoodItems.FindAsync(foodItemId);
+
+                    if (foodItem != null && quantity <= foodItem.Quantity)
+                    {
+                        cartItem.Quantity = quantity;
+                        await _context.SaveChangesAsync();
+                        return Json(new { success = true, message = "Cart updated" });
+                    }
+                    else
+                    {
+                        return Json(new { success = false, message = "Quantity exceeds available stock" });
+                    }
+                }
+
+                return Json(new { success = false, message = "Item not found in cart" });
+            }
+
+            return Json(new { success = false, message = "User not logged in" });
+        }
+
+        // Remove item from cart
+        public async Task<IActionResult> RemoveFromCart(int foodItemId)
+        {
+            if (HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+                var cartItem = await _context.Carts.FirstOrDefaultAsync(c => c.CustomerId == customerId && c.FoodItemId == foodItemId);
+
+                if (cartItem != null)
+                {
+                    _context.Carts.Remove(cartItem);
+                    await _context.SaveChangesAsync();
+                    return Json(new { success = true, message = "Item removed from cart" });
+                }
+
+                return Json(new { success = false, message = "Item not found in cart" });
+            }
+
+            return Json(new { success = false, message = "User not logged in" });
+        }
+
+        // View cart
+        public async Task<IActionResult> ViewCart()
+        {
+            if (HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+                var cartItems = await _context.Carts
+                    .Where(c => c.CustomerId == customerId)
+                    .Include(c => c.FoodItem) // Include food item details
+                    .ToListAsync();
+
+                return View(cartItems);
+            }
+
+            return RedirectToAction("Login", "Customer");
         }
     }
 }

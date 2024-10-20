@@ -61,10 +61,25 @@
         document.querySelectorAll('.add-to-cart').forEach(button => {
             button.addEventListener('click', function () {
                 const itemId = this.getAttribute('data-item-id');
-                // Implement the add-to-cart logic here
-                alert('Item ' + itemId + ' added to cart!');
-                // Example: make an AJAX call to add the item to the cart
+
+                fetch(`/Customer/AddToCart?foodItemId=${itemId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '@Html.AntiForgeryToken()' // Include CSRF token for security
+                    }
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert('Item added to cart!');
+                        } else {
+                            alert(data.message);
+                        }
+                    })
+                    .catch(error => console.error('Error adding to cart:', error));
             });
         });
     </script>
 }
+

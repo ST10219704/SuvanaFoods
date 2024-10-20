@@ -1,0 +1,92 @@
+﻿@model IEnumerable<SuvanaFoods.Models.Cart>
+@{
+    ViewBag.Title = "Shopping Cart";
+}
+
+<div class="container mt-4" style="margin-top: 70px;">
+    <h2 class="text-center">Your Cart</h2>
+
+    @if (Model.Any())
+    {
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Item</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var cartItem in Model)
+                        {
+                            <tr>
+                                <td><img src="@cartItem.FoodItem.ImageUrl" alt="@cartItem.FoodItem.Name" class="img-fluid" style="width: 100px; height: 100px; object-fit: cover;" /></td>
+                                <td>@cartItem.FoodItem.Name</td>
+                                <td>@cartItem.FoodItem.Price?.ToString("C")</td>
+                                <td>
+                                    <input type="number" value="@cartItem.Quantity" min="1" max="@cartItem.FoodItem.Quantity" class="form-control quantity-input" data-item-id="@cartItem.FoodItem.FoodItemId" />
+                                    <span class="text-danger stock-warning" data-item-id="@cartItem.FoodItem.FoodItemId" style="display:none;">Quantity exceeds available stock!</span>
+                                </td>
+                                <td>@(cartItem.FoodItem.Price * cartItem.Quantity)?.ToString("C")</td>
+                                <td>
+                                    <button class="btn btn-danger remove-item" data-item-id="@cartItem.FoodItem.FoodItemId">Remove</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+
+                <button class="btn btn-primary float-right">Proceed to Checkout</button>
+            </div>
+        </div>
+    }
+    else
+    {
+        <p class="text-center">Your cart is empty!</p>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function () {
+                const itemId = this.getAttribute('data-item-id');
+                const quantity = this.value;
+                const maxQuantity = this.getAttribute('max');
+
+                if (parseInt(quantity) > parseInt(maxQuantity)) {
+                    document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'block';
+                    this.value = maxQuantity;
+                } else {
+                    document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'none';
+                }
+
+                // Make an AJAX call to update the quantity in the cart
+                updateCart(itemId, quantity);
+            });
+        });
+
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function () {
+                const itemId = this.getAttribute('data-item-id');
+                // Make an AJAX call to remove the item from the cart
+                removeFromCart(itemId);
+            });
+        });
+
+        function updateCart(itemId, quantity) {
+            // Add your AJAX call logic to update cart quantity
+            console.log(`Update item ${itemId} with quantity ${quantity}`);
+        }
+
+        function removeFromCart(itemId) {
+            // Add your AJAX call logic to remove item from cart
+            console.log(`Remove item ${itemId} from cart`);
+        }
+    </script>
+}
