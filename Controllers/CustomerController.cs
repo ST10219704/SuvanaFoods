@@ -311,6 +311,7 @@ namespace SuvanaFoods.Controllers
             return Json(new { success = false, message = "User not logged in" });
         }
 
+
         // View cart
         public async Task<IActionResult> ViewCart()
         {
