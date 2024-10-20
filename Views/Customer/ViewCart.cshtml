@@ -3,65 +3,116 @@
     ViewBag.Title = "Shopping Cart";
 }
 
-<div class="container mt-4" style="margin-top: 70px;">
+<style>
+    .profile-container {
+        margin-top: 75px;
+    }
+</style>
+
+<div class="profile-container"> <!-- Adjusted margin for the entire container -->
     <h2 class="text-center">Your Cart</h2>
 
     @if (Model.Any())
     {
-        <div class="row">
-            <div class="col-md-12">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Image</th>
-                            <th>Item</th>
-                            <th>Price</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Image</th>
+                                <th>Item</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                         @foreach (var cartItem in Model)
                         {
-                            <tr>
-                                <td>
-                                    <img src="@cartItem.FoodItem.ImageUrl" alt="@cartItem.FoodItem.Name"
-                                         class="img-fluid" style="width: 100px; height: 100px; object-fit: cover;" />
-                                </td>
-                                <td>@cartItem.FoodItem.Name</td>
-                                <td>@(cartItem.FoodItem.Price?.ToString("C") ?? "$0.00")</td>
-                                <td>
-                                    <input type="number" value="@cartItem.Quantity" min="1" max="@cartItem.FoodItem.Quantity"
-                                           class="form-control quantity-input"
-                                           data-item-id="@cartItem.FoodItem.FoodItemId" />
-                                    <span class="text-danger stock-warning" data-item-id="@cartItem.FoodItem.FoodItemId"
-                                          style="display:none;">Quantity exceeds available stock!</span>
-                                </td>
-                                <td class="item-total" data-item-id="@cartItem.FoodItem.FoodItemId">
-                                    @(cartItem.FoodItem.Price.GetValueOrDefault() * cartItem.Quantity.GetValueOrDefault(1)).ToString("C")
-                                </td>
-                                <td>
-                                    <button class="btn btn-danger remove-item" data-item-id="@cartItem.FoodItem.FoodItemId">
-                                        Remove
-                                    </button>
-                                </td>
-                            </tr>
+                                <tr data-item-id="@cartItem.FoodItem.FoodItemId"> <!-- Added data-item-id for reference -->
+                                    <td>
+                                        <img src="@cartItem.FoodItem.ImageUrl" alt="@cartItem.FoodItem.Name"
+                                             class="img-fluid" style="width: 100px; height: 100px; object-fit: cover;" />
+                                    </td>
+                                    <td>@cartItem.FoodItem.Name</td>
+                                    <td>R @cartItem.FoodItem.Price?.ToString("F2")</td>
+                                    <td>
+                                        <input type="number" value="@cartItem.Quantity" min="1" max="@cartItem.FoodItem.Quantity"
+                                               class="form-control quantity-input"
+                                               data-item-id="@cartItem.FoodItem.FoodItemId" data-price="@cartItem.FoodItem.Price.GetValueOrDefault()" />
+                                        <span class="text-danger stock-warning" data-item-id="@cartItem.FoodItem.FoodItemId"
+                                              style="display:none;">Quantity exceeds available stock!</span>
+                                    </td>
+                                    <td class="item-total" data-item-id="@cartItem.FoodItem.FoodItemId">
+                                        R @((cartItem.FoodItem.Price.GetValueOrDefault() * cartItem.Quantity.GetValueOrDefault(1)).ToString("F2"))
+                                    </td>
+                                    <td>
+                                        <button class="btn btn-danger remove-item" data-item-id="@cartItem.FoodItem.FoodItemId">
+                                            Remove
+                                        </button>
+                                    </td>
+                                </tr>
                         }
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
 
-                <div class="total-amount">
-                    <h4>Total: <span id="total-amount">@Model.Sum(item => item.FoodItem.Price.GetValueOrDefault() * item.Quantity.GetValueOrDefault(1)).ToString("C")</span></h4>
+                    <div class="total-amount">
+                        <h4>Total: R <span id="total-amount">@Model.Sum(item => item.FoodItem.Price.GetValueOrDefault() * item.Quantity.GetValueOrDefault()).ToString("F2")</span></h4>
+                    </div>
+
+                    <button class="btn btn-primary float-right">Proceed to Checkout</button>
                 </div>
-
-                <button class="btn btn-primary float-right">Proceed to Checkout</button>
             </div>
-        </div>
     }
     else
     {
-        <p class="text-center">Your cart is empty!</p>
+            <p class="text-center">Your cart is empty!</p>
     }
 </div>
 
+@section Scripts {
+        <script>
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function () {
+                    const itemId = this.getAttribute('data-item-id');
+                    const quantity = parseInt(this.value);
+                    const maxQuantity = parseInt(this.getAttribute('max'));
+                    const pricePerItem = parseFloat(this.getAttribute('data-price'));
+
+                    if (quantity > maxQuantity) {
+                        document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'block';
+                        this.value = maxQuantity;
+                    } else {
+                        document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'none';
+                    }
+
+                    // Update the total price for this item
+                    document.querySelector(`.item-total[data-item-id='${itemId}']`).innerText = "R " + (pricePerItem * quantity).toFixed(2);
+
+                    // Update the total amount for all items
+                    updateTotalAmount();
+                });
+            });
+
+            function updateTotalAmount() {
+                let total = 0;
+                document.querySelectorAll('.item-total').forEach(item => {
+                    total += parseFloat(item.innerText.replace("R ", ""));
+                });
+                document.getElementById('total-amount').innerText = total.toFixed(2);
+            }
+
+            document.querySelectorAll('.remove-item').forEach(button => {
+                button.addEventListener('click', function () {
+                    const itemId = this.getAttribute('data-item-id');
+                    removeFromCart(itemId);
+                });
+            });
+
+            function removeFromCart(itemId) {
+                document.querySelector(`tr[data-item-id='${itemId}']`).remove();
+                updateTotalAmount();
+            }
+        </script>
+}
