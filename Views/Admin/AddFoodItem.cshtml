@@ -23,7 +23,7 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="@Url.Action("AddFoodItem", "Admin")">
+                <a href="@Url.Action("ManageStock", "Admin")">
                     <i class="fas fa-box"></i>
                     <span>Food Items</span>
                 </a>
@@ -132,15 +132,16 @@
     }
 
     .sidebar {
-        height: 100vh;
+        height: calc(100% - 50px); /* Adjust height to account for the top navbar */
         background-color: #343a40;
         min-width: 250px;
         max-width: 250px;
-        position: fixed;
-        top: 0;
-        left: 0;
-        padding-top: 75px;
         transition: all 0.3s ease;
+        position: fixed; /* Sidebar docked to the left */
+        left: 0;
+        top: 75px; /* Push the sidebar down by 50px to avoid navbar collision */
+        bottom: 0;
+        overflow-y: auto; /* Allow vertical scrolling if needed */
     }
 
     .sidebar .nav-item {

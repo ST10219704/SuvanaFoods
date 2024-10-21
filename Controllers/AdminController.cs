@@ -200,6 +200,14 @@ namespace SuvanaFoods.Controllers
             return View(foodItem);
         }
 
+        public IActionResult ManageStock()
+        {
+            // Fetch all food items from the database
+            var foodItems = _context.FoodItems
+                .ToList();
+
+            return View(foodItems);
+        }
 
     }
 }
