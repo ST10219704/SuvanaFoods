@@ -1,100 +1,201 @@
-﻿@model SuvanaFoods.Models.FoodItem
+﻿@model SuvanaFoods.Models.AddFoodItemView
+
 @{
-    ViewBag.Title = "Add Food Item";
+    ViewData["Title"] = "Add Food Item";
 }
 
-<!-- Add custom CSS to move the content 70px down -->
-<style>
-    .content-wrapper {
-        margin-top: 70px; /* Moves the content down */
-    }
-</style>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"> <!-- Google Font -->
 
-<div class="content-wrapper">
-    <h2>Add Food Item</h2>
+<div class="employee-dashboard">
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a href="@Url.Action("Index", "Home")">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("CategoryManagement", "Admin")">
+                    <i class="fas fa-list"></i>
+                    <span>Categories</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("AddFoodItem", "Admin")">
+                    <i class="fas fa-box"></i>
+                    <span>Food Items</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-shipping-fast"></i>
+                    <span>Update Status</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-users"></i>
+                    <span>Users</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="#">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Reports</span>
+                </a>
+            </li>
+        </ul>
+    </div>
 
-    <form asp-action="AddFoodItem" enctype="multipart/form-data" method="post">
-        <div class="form-group">
-            <label for="CategoryId">Category</label>
-            <select asp-for="CategoryId" class="form-control" asp-items="ViewBag.Categories">
-                <option value="">--Select Category--</option>
-            </select>
+    <!-- Content Area -->
+    <div class="content-wrapper">
+        <div class="content">
+            <h2>Add Food Item</h2>
+
+            <form asp-action="AddFoodItem" enctype="multipart/form-data" method="post" class="add-food-item-form">
+                <div class="form-group">
+                    <label asp-for="Category">Category</label>
+                    <select asp-for="Category" class="form-control" asp-items="ViewBag.Categories">
+                        <option value="">--Select Category--</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Name">Food Item Name</label>
+                    <input asp-for="Name" class="form-control" required />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description">Description</label>
+                    <textarea asp-for="Description" class="form-control"></textarea>
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Price">Price</label>
+                    <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" required />
+                    <span asp-validation-for="Price" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Quantity">Quantity</label>
+                    <input asp-for="Quantity" class="form-control" type="number" min="1" required />
+                    <span asp-validation-for="Quantity" class="text-danger"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="ImageUrl">Upload Image</label>
+                    <input type="file" class="form-control" name="imageFile" />
+                    <span asp-validation-for="ImageUrl" class="text-danger"></span>
+                </div>
+
+                <div class="form-group form-check">
+                    <input asp-for="IsActive" class="form-check-input" type="checkbox" checked="@Model.IsActive ?? false" />
+                    <label asp-for="IsActive" class="form-check-label">Is Active</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Add Food Item</button>
+            </form>
         </div>
-
-        <div class="form-group">
-            <label for="Name">Food Item Name</label>
-            <input asp-for="Name" class="form-control" />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label for="Description">Description</label>
-            <textarea asp-for="Description" class="form-control"></textarea>
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label for="Price">Price</label>
-            <input asp-for="Price" class="form-control" type="number" step="0.01" min="0" />
-            <span asp-validation-for="Price" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label for="Quantity">Quantity</label>
-            <input asp-for="Quantity" class="form-control" />
-            <span asp-validation-for="Quantity" class="text-danger"></span>
-        </div>
-
-        <div class="form-group">
-            <label for="ImageUrl">Upload Image</label>
-            <input asp-for="ImageUrl" type="file" class="form-control" />
-            <span asp-validation-for="ImageUrl" class="text-danger"></span>
-        </div>
-
-        <div class="form-group form-check">
-            <input asp-for="IsActive" class="form-check-input" type="checkbox" />
-            <label asp-for="IsActive" class="form-check-label">Is Active</label>
-        </div>
-
-        <button type="submit" class="btn btn-primary">Add Food Item</button>
-    </form>
-
-    <hr />
-
-    <h3>Existing Food Items</h3>
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Name</th>
-                <th>Description</th>
-                <th>Price</th>
-                <th>Quantity</th>
-                <th>Category</th>
-                <th>Active</th>
-                <th>Image</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in ViewBag.FoodItems)
-            {
-                <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Description</td>
-                    <td>@item.Price.ToString("C")</td>
-                    <td>@item.Quantity</td>
-                    <td>@item.Category?.Name</td>
-                    <td>@(item.IsActive ? "Yes" : "No")</td>
-                    <td>
-                        <img src="@item.ImageUrl" alt="@item.Name" style="width: 100px; height: auto;" />
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    </div>
 </div>
 
-@section Scripts {
-    @{
-        Html.RenderPartial("_ValidationScriptsPartial");
+<!-- Scripts and Sidebar Toggle -->
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');
+    });
+</script>
+
+<!-- Styles -->
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        background-color: #f0f0f0;
     }
-}
+
+    .employee-dashboard {
+        display: flex;
+    }
+
+    .sidebar {
+        height: 100vh;
+        background-color: #343a40;
+        min-width: 250px;
+        max-width: 250px;
+        position: fixed;
+        top: 0;
+        left: 0;
+        padding-top: 75px;
+        transition: all 0.3s ease;
+    }
+
+    .sidebar .nav-item {
+        padding: 15px;
+    }
+
+    .sidebar .nav-item a {
+        color: #fff;
+        text-decoration: none;
+    }
+
+    .sidebar .nav-item a:hover {
+        background-color: #495057;
+        border-radius: 5px;
+    }
+
+    .content-wrapper {
+        margin-left: 250px;
+        padding: 20px;
+        width: 100%;
+    }
+
+    .content {
+        margin-top: 70px;
+        background-color: #ffffff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+    }
+
+    h2 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #004085;
+    }
+
+    .form-control, .form-check-input {
+        border-radius: 5px;
+    }
+
+    .form-check-label {
+        margin-left: 5px;
+    }
+</style>

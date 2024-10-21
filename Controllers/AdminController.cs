@@ -10,6 +10,7 @@ namespace SuvanaFoods.Controllers
     public class AdminController : Controller
     {
         private readonly SuvanaFoodsDbContext _context;
+        private const string ImageDirectory = "images";
 
         public AdminController(SuvanaFoodsDbContext context)
         {
@@ -144,43 +145,60 @@ namespace SuvanaFoods.Controllers
             return Json(categories);
         }
 
-        [HttpGet]
-        public IActionResult AddFoodItem()
+        public async Task<IActionResult> AddFoodItem()
         {
-            ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "Name");
-            ViewBag.FoodItems = _context.FoodItems.Include(f => f.Category).ToList();
-            return View(new FoodItem());
+            ViewBag.Categories = new SelectList(await _context.Categories.Where(c => (bool)c.IsActive).ToListAsync(), "Name", "Name");
+
+            // Create an instance of AddFoodItemView to pass to the view
+            var model = new AddFoodItemView();
+            return View(model);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddFoodItem(FoodItem foodItem, IFormFile imageFile)
+        public async Task<IActionResult> AddFoodItem(AddFoodItemView foodItem, IFormFile? imageFile) // Nullable imageFile
         {
             if (ModelState.IsValid)
             {
-                // Handle file upload here
                 if (imageFile != null && imageFile.Length > 0)
                 {
-                    var filePath = Path.Combine("wwwroot/images", imageFile.FileName); // Make sure to create this directory
-                    using (var stream = new FileStream(filePath, FileMode.Create))
+                    // Create a unique filename
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                    var imagePath = Path.Combine(ImageDirectory, uniqueFileName);
+
+                    // Ensure the directory exists
+                    Directory.CreateDirectory(ImageDirectory);
+
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
                     {
-                        imageFile.CopyTo(stream);
+                        await imageFile.CopyToAsync(stream);
                     }
-                    foodItem.ImageUrl = "/images/" + imageFile.FileName; // Save the relative path
+
+                    foodItem.ImageUrl = $"/{imagePath}"; // Store the image URL
                 }
 
-                _context.FoodItems.Add(foodItem);
-                _context.SaveChanges();
-                return RedirectToAction("AddFoodItem");
+                // Map the ViewModel to the Entity Model
+                var newFoodItem = new FoodItem
+                {
+                    Name = foodItem.Name,
+                    Description = foodItem.Description,
+                    Price = foodItem.Price,
+                    Quantity = foodItem.Quantity,
+                    Category = foodItem.Category,
+                    ImageUrl = foodItem.ImageUrl,
+                    IsActive = foodItem.IsActive
+                };
+
+                _context.FoodItems.Add(newFoodItem);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("AddFoodItem"); // Redirect to another action after successful addition
             }
 
-            // Reload categories and food items if validation fails
-            ViewBag.Categories = new SelectList(_context.Categories, "CategoryId", "Name");
-            ViewBag.FoodItems = _context.FoodItems.Include(f => f.Category).ToList();
+            // Repopulate categories in case of an error
+            ViewBag.Categories = new SelectList(await _context.Categories.Where(c => (bool)c.IsActive).ToListAsync(), "Name", "Name");
             return View(foodItem);
         }
-
-
 
 
     }

@@ -222,12 +222,12 @@ namespace SuvanaFoods.Controllers
         {
             // Fetch all active food items from the database
             var foodItems = _context.FoodItems
-                .Include(f => f.Category) // Include category data if needed
-                .Where(f => f.IsActive) // Only fetch active items
+                .Where(f => (bool)f.IsActive) // Only fetch active items
                 .ToList();
 
             return View(foodItems);
         }
+
 
         // Add item to cart
         [HttpPost]

@@ -67,18 +67,18 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B7138EC832");
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B72C8600EA");
 
             entity.ToTable("Cart");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cart__CustomerId__45F365D3");
+                .HasConstraintName("FK__Cart__CustomerId__5CD6CB2B");
 
             entity.HasOne(d => d.FoodItem).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.FoodItemId)
-                .HasConstraintName("FK__Cart__FoodItemId__46E78A0C");
+                .HasConstraintName("FK__Cart__FoodItemId__5DCAEF64");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -143,26 +143,37 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<FoodItem>(entity =>
         {
-            entity.HasKey(e => e.FoodItemId).HasName("PK__FoodItem__464DC8125BD3F4B8");
+            entity.HasKey(e => e.FoodItemId).HasName("PK__FoodItem__464DC8128A226572");
 
             entity.ToTable("FoodItem");
 
-            entity.Property(e => e.Description).IsUnicode(false);
-            entity.Property(e => e.ImageUrl).IsUnicode(false);
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .IsUnicode(false);
-            entity.Property(e => e.Price).HasColumnType("decimal(18, 2)");
 
-            entity.HasOne(d => d.Category).WithMany(p => p.FoodItems)
-                .HasForeignKey(d => d.CategoryId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__FoodItem__Catego__4316F928");
+            entity.Property(e => e.Description)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Category)
+                .IsUnicode(false);
+
+            entity.Property(e => e.Price)
+                .HasColumnType("decimal(18, 2)");
+
+            entity.Property(e => e.Quantity) // Add Quantity configuration
+                .IsRequired(); // Or specify .HasDefaultValue(0) if applicable
+
+            entity.Property(e => e.ImageUrl)
+                .IsUnicode(false);
+
+            entity.Property(e => e.IsActive) // Add IsActive configuration
+                .IsRequired(); // Or specify .HasDefaultValue(true) if applicable
         });
+
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF7244F082");
+            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF322957C7");
 
             entity.ToTable("Order");
 
@@ -174,15 +185,15 @@ public partial class SuvanaFoodsDbContext : DbContext
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
-                .HasConstraintName("FK__Order__CustomerI__4CA06362");
+                .HasConstraintName("FK__Order__CustomerI__619B8048");
 
             entity.HasOne(d => d.FoodItem).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.FoodItemId)
-                .HasConstraintName("FK__Order__FoodItemI__4BAC3F29");
+                .HasConstraintName("FK__Order__FoodItemI__60A75C0F");
 
             entity.HasOne(d => d.Payment).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.PaymentId)
-                .HasConstraintName("FK__Order__PaymentId__4D94879B");
+                .HasConstraintName("FK__Order__PaymentId__628FA481");
         });
 
         modelBuilder.Entity<Payment>(entity =>
