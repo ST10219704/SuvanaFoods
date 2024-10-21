@@ -1,0 +1,128 @@
+﻿@{
+    ViewBag.Title = "Suvana Foods - Checkout";
+}
+
+<div class="container">
+    <h1>Checkout</h1>
+
+    <!-- Order Summary Section -->
+    <div class="order-summary">
+        <h3>Order Summary</h3>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Menu Item</th>
+                    <th>Quantity</th>
+                    <th>Price</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Replace with dynamic cart data -->
+                <tr>
+                    <td>Chicken Burger</td>
+                    <td>2</td>
+                    <td>$5.00</td>
+                    <td>$10.00</td>
+                </tr>
+                <tr>
+                    <td>Pizza</td>
+                    <td>1</td>
+                    <td>$8.00</td>
+                    <td>$8.00</td>
+                </tr>
+                <!-- Repeat for other items in cart -->
+            </tbody>
+        </table>
+
+        <div class="order-total">
+            <h4><strong>Total Amount: $18.00</strong></h4>
+        </div>
+    </div>
+
+    <!-- Delivery Information Section -->
+    <div class="delivery-info">
+        <h3>Delivery Information</h3>
+        <form>
+            <div class="form-group">
+                <label for="deliveryAddress">Delivery Address</label>
+                <input type="text" class="form-control" id="deliveryAddress" placeholder="Enter delivery address" value="123 Main Street, City">
+            </div>
+            <div class="form-group">
+                <label for="deliveryNotes">Delivery Notes (Optional)</label>
+                <textarea class="form-control" id="deliveryNotes" rows="3" placeholder="Add any special instructions..."></textarea>
+            </div>
+        </form>
+    </div>
+
+    <!-- Payment Options Section -->
+    <div class="payment-info">
+        <h3>Payment Information</h3>
+        <form>
+            <div class="form-group">
+                <label for="paymentMethod">Select Payment Method</label>
+                <select class="form-control" id="paymentMethod">
+                    <option>Credit Card</option>
+                    <option>Debit Card</option>
+                    <option>PayPal</option>
+                    <option>Cash on Delivery</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Place Order Button -->
+    <div class="checkout-actions">
+        <button class="btn btn-success btn-lg">Place Order</button>
+    </div>
+</div>
+
+<style>
+    .container {
+        margin-top: 50px;
+    }
+
+    h1 {
+        text-align: center;
+        margin-bottom: 30px;
+        color: #4CAF50;
+    }
+
+    h3 {
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .order-total {
+        text-align: right;
+        margin-top: 20px;
+        font-size: 18px;
+    }
+
+    .delivery-info, .payment-info {
+        margin-top: 30px;
+    }
+
+    .checkout-actions {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .btn-lg {
+        padding: 10px 30px;
+        font-size: 18px;
+        background-color: #28a745;
+        color: white;
+        border: none;
+    }
+
+        .btn-lg:hover {
+            background-color: #218838;
+        }
+</style>
+
