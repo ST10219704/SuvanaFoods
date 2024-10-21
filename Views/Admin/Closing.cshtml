@@ -1,0 +1,51 @@
+﻿@{
+    ViewBag.Title = "Suvana Foods - Session Ended";
+}
+
+<div class="container">
+    <h1>Thank You for Managing Suvana Foods</h1>
+    <p>Your session has ended successfully. Please log out or return to the dashboard.</p>
+
+    <div class="closing-options">
+        <a href="@Url.Action("Logout", "Admin")" class="btn btn-danger">Log Out</a>
+        <a href="@Url.Action("OpeningScreen", "Admin")" class="btn btn-success">Return to Dashboard</a>
+    </div>
+</div>
+
+<style>
+    .container {
+        text-align: center;
+        margin-top: 50px;
+    }
+
+    h1 {
+        color: #dc3545;
+    }
+
+    .closing-options {
+        margin-top: 20px;
+    }
+
+    .btn {
+        margin: 10px;
+        padding: 15px 30px;
+        font-size: 16px;
+        border-radius: 5px;
+        text-decoration: none;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        color: white;
+    }
+
+    .btn:hover {
+        opacity: 0.85;
+    }
+</style>
+
