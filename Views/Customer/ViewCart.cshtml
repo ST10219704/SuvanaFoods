@@ -1,118 +1,173 @@
 ﻿@model IEnumerable<SuvanaFoods.Models.Cart>
 @{
-    ViewBag.Title = "Shopping Cart";
+    ViewBag.Title = "Suvana Foods - Your Cart";
 }
+
+<div class="container profile-container">
+    <!-- Combined classes for adjusted margin -->
+    <h1>Your Cart</h1>
+    <p>Review your selected items before proceeding to checkout.</p>
+
+    @if (Model.Any())
+    {
+        <table class="table table-bordered table-striped">
+            <thead>
+                <tr>
+                    <th>Image</th>
+                    <th>Menu Item</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Total</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var cartItem in Model)
+                {
+                    <tr data-item-id="@cartItem.FoodItem.FoodItemId">
+                        <td>
+                            <img src="@cartItem.FoodItem.ImageUrl" alt="@cartItem.FoodItem.Name"
+                                 class="img-fluid" style="width: 100px; height: 100px; object-fit: cover;" />
+                        </td>
+                        <td>@cartItem.FoodItem.Name</td>
+                        <td>R @cartItem.FoodItem.Price?.ToString("F2")</td>
+                        <td>
+                            <input type="number" value="@cartItem.Quantity" min="1" max="@cartItem.FoodItem.Quantity"
+                                   class="form-control quantity-input"
+                                   data-item-id="@cartItem.FoodItem.FoodItemId" data-price="@cartItem.FoodItem.Price.GetValueOrDefault()"
+                                   style="width: 60px; text-align: center;" />
+                            <span class="text-danger stock-warning" data-item-id="@cartItem.FoodItem.FoodItemId" style="display:none;">
+                                Quantity exceeds available stock!
+                            </span>
+                        </td>
+                        <td class="item-total" data-item-id="@cartItem.FoodItem.FoodItemId">
+                            R @((cartItem.FoodItem.Price.GetValueOrDefault() * cartItem.Quantity.GetValueOrDefault(1)).ToString("F2"))
+                        </td>
+                        <td>
+                            <button class="btn btn-danger remove-item" data-item-id="@cartItem.FoodItem.FoodItemId">Remove</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="cart-summary">
+            <h3>Cart Summary</h3>
+            <p><strong>Total Amount:</strong> R <span id="total-amount">@Model.Sum(item => item.FoodItem.Price.GetValueOrDefault() * item.Quantity.GetValueOrDefault()).ToString("F2")</span></p>
+            <a href="@Url.Action("Checkout", "Customer")" class="btn btn-success">Proceed to Checkout</a>
+        </div>
+    }
+    else
+    {
+        <p class="text-center">Your cart is empty!</p>
+    }
+</div>
 
 <style>
     .profile-container {
         margin-top: 75px;
     }
+
+    .container {
+        margin-top: 80px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #4CAF50;
+        margin-bottom: 20px;
+    }
+
+    .table th {
+        background-color: #007bff;
+        color: white;
+        text-align: center;
+    }
+
+    .table td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .form-control {
+        text-align: center;
+    }
+
+    .btn {
+        margin-right: 5px;
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+        color: white;
+    }
+
+    .btn-success {
+        margin-top: 20px;
+        background-color: #28a745;
+        color: white;
+    }
+
+    .cart-summary {
+        margin-top: 30px;
+        text-align: center;
+    }
+
+        .cart-summary h3 {
+            margin-bottom: 15px;
+            color: #4CAF50;
+        }
+
+        .cart-summary p {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
 </style>
 
-<div class="profile-container"> <!-- Adjusted margin for the entire container -->
-    <h2 class="text-center">Your Cart</h2>
-
-    @if (Model.Any())
-    {
-            <div class="row">
-                <div class="col-md-12">
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th>Image</th>
-                                <th>Item</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Total</th>
-                                <th>Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach (var cartItem in Model)
-                        {
-                                <tr data-item-id="@cartItem.FoodItem.FoodItemId"> <!-- Added data-item-id for reference -->
-                                    <td>
-                                        <img src="@cartItem.FoodItem.ImageUrl" alt="@cartItem.FoodItem.Name"
-                                             class="img-fluid" style="width: 100px; height: 100px; object-fit: cover;" />
-                                    </td>
-                                    <td>@cartItem.FoodItem.Name</td>
-                                    <td>R @cartItem.FoodItem.Price?.ToString("F2")</td>
-                                    <td>
-                                        <input type="number" value="@cartItem.Quantity" min="1" max="@cartItem.FoodItem.Quantity"
-                                               class="form-control quantity-input"
-                                               data-item-id="@cartItem.FoodItem.FoodItemId" data-price="@cartItem.FoodItem.Price.GetValueOrDefault()" />
-                                        <span class="text-danger stock-warning" data-item-id="@cartItem.FoodItem.FoodItemId"
-                                              style="display:none;">Quantity exceeds available stock!</span>
-                                    </td>
-                                    <td class="item-total" data-item-id="@cartItem.FoodItem.FoodItemId">
-                                        R @((cartItem.FoodItem.Price.GetValueOrDefault() * cartItem.Quantity.GetValueOrDefault(1)).ToString("F2"))
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-danger remove-item" data-item-id="@cartItem.FoodItem.FoodItemId">
-                                            Remove
-                                        </button>
-                                    </td>
-                                </tr>
-                        }
-                        </tbody>
-                    </table>
-
-                    <div class="total-amount">
-                        <h4>Total: R <span id="total-amount">@Model.Sum(item => item.FoodItem.Price.GetValueOrDefault() * item.Quantity.GetValueOrDefault()).ToString("F2")</span></h4>
-                    </div>
-
-                    <button class="btn btn-primary float-right">Proceed to Checkout</button>
-                </div>
-            </div>
-    }
-    else
-    {
-            <p class="text-center">Your cart is empty!</p>
-    }
-</div>
-
 @section Scripts {
-        <script>
-            document.querySelectorAll('.quantity-input').forEach(input => {
-                input.addEventListener('change', function () {
-                    const itemId = this.getAttribute('data-item-id');
-                    const quantity = parseInt(this.value);
-                    const maxQuantity = parseInt(this.getAttribute('max'));
-                    const pricePerItem = parseFloat(this.getAttribute('data-price'));
+    <script>
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.addEventListener('change', function () {
+                const itemId = this.getAttribute('data-item-id');
+                const quantity = parseInt(this.value);
+                const maxQuantity = parseInt(this.getAttribute('max'));
+                const pricePerItem = parseFloat(this.getAttribute('data-price'));
 
-                    if (quantity > maxQuantity) {
-                        document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'block';
-                        this.value = maxQuantity;
-                    } else {
-                        document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'none';
-                    }
+                if (quantity > maxQuantity) {
+                    document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'block';
+                    this.value = maxQuantity;
+                } else {
+                    document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'none';
+                }
 
-                    // Update the total price for this item
-                    document.querySelector(`.item-total[data-item-id='${itemId}']`).innerText = "R " + (pricePerItem * quantity).toFixed(2);
+                // Update the total price for this item
+                document.querySelector(`.item-total[data-item-id='${itemId}']`).innerText = "R " + (pricePerItem * quantity).toFixed(2);
 
-                    // Update the total amount for all items
-                    updateTotalAmount();
-                });
-            });
-
-            function updateTotalAmount() {
-                let total = 0;
-                document.querySelectorAll('.item-total').forEach(item => {
-                    total += parseFloat(item.innerText.replace("R ", ""));
-                });
-                document.getElementById('total-amount').innerText = total.toFixed(2);
-            }
-
-            document.querySelectorAll('.remove-item').forEach(button => {
-                button.addEventListener('click', function () {
-                    const itemId = this.getAttribute('data-item-id');
-                    removeFromCart(itemId);
-                });
-            });
-
-            function removeFromCart(itemId) {
-                document.querySelector(`tr[data-item-id='${itemId}']`).remove();
+                // Update the total amount for all items
                 updateTotalAmount();
-            }
-        </script>
+            });
+        });
+
+        function updateTotalAmount() {
+            let total = 0;
+            document.querySelectorAll('.item-total').forEach(item => {
+                total += parseFloat(item.innerText.replace("R ", ""));
+            });
+            document.getElementById('total-amount').innerText = total.toFixed(2);
+        }
+
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function () {
+                const itemId = this.getAttribute('data-item-id');
+                removeFromCart(itemId);
+            });
+        });
+
+        function removeFromCart(itemId) {
+            document.querySelector(`tr[data-item-id='${itemId}']`).remove();
+            updateTotalAmount();
+        }
+    </script>
 }

@@ -29,11 +29,13 @@ public partial class SuvanaFoodsDbContext : DbContext
 
     public virtual DbSet<Order> Orders { get; set; }
 
+    public virtual DbSet<OrderItem> OrderItems { get; set; }
+
     public virtual DbSet<Payment> Payments { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=ADMIN;Initial Catalog=SuvanaFoodsDB;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
+        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-JP19TVO;Initial Catalog=SuvanaFoodsDB;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -166,24 +168,73 @@ public partial class SuvanaFoodsDbContext : DbContext
 
             entity.ToTable("Order");
 
-            entity.Property(e => e.OrderDate).HasColumnType("datetime");
-            entity.Property(e => e.OrderNo).IsUnicode(false);
-            entity.Property(e => e.Status)
-                .HasMaxLength(50)
+            entity.Property(e => e.OrderNo)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
+            entity.Property(e => e.Total)
+                .HasColumnType("decimal(18, 2)")
+                .IsRequired();
+
+            entity.Property(e => e.DeliveryMode)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .IsRequired();
+
+            entity.Property(e => e.Address)
+                .IsUnicode(false);
+
+            entity.Property(e => e.PaymentMethod)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .IsRequired();
+
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValue("Confirmed");
+
+            entity.Property(e => e.OrderDate)
+                .HasColumnType("datetime")
+                .HasDefaultValueSql("GETDATE()");
+
+            entity.Property(e => e.PaymentStatus)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValue("Pending");
+
+            // Relationships
+            entity.HasOne(d => d.Customer)
+                .WithMany(p => p.Orders) // Ensure Customer has an Orders collection
                 .HasForeignKey(d => d.CustomerId)
-                .HasConstraintName("FK__Order__CustomerI__52593CB8");
-
-            entity.HasOne(d => d.FoodItem).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.FoodItemId)
-                .HasConstraintName("FK__Order__FoodItemI__5165187F");
-
-            entity.HasOne(d => d.Payment).WithMany(p => p.Orders)
-                .HasForeignKey(d => d.PaymentId)
-                .HasConstraintName("FK__Order__PaymentId__534D60F1");
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__Order__CustomerId__52593CB8");
         });
+
+        modelBuilder.Entity<OrderItem>(entity =>
+        {
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderItem__C6D3A69F38D9B8A0");
+
+            entity.ToTable("OrderItem");
+
+            entity.Property(e => e.Quantity)
+                .IsRequired();
+
+            // Relationships
+            entity.HasOne(d => d.Order)
+                .WithMany(p => p.OrderItems) // Ensure Order has an OrderItems collection
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderItem__OrderId__5C9C36B8");
+
+            entity.HasOne(d => d.FoodItem)
+                .WithMany(p => p.OrderItems) // Ensure FoodItem has an OrderItems collection
+                .HasForeignKey(d => d.FoodItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderItem__FoodItemId__5C9C36B8");
+        });
+
+
+
 
         modelBuilder.Entity<Payment>(entity =>
         {

@@ -351,5 +351,7 @@ namespace SuvanaFoods.Controllers
 
             return RedirectToAction("Queries", "Admin");
         }
+
+
     }
 }

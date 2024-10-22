@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using Rotativa.AspNetCore;
 using SuvanaFoods.Models;
 using System.Linq;
 using System.Threading.Tasks;
@@ -296,20 +297,21 @@ namespace SuvanaFoods.Controllers
             if (HttpContext.Session.TryGetValue("UserId", out var value))
             {
                 var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
-                var cartItem = await _context.Carts.FirstOrDefaultAsync(c => c.CustomerId == customerId && c.FoodItemId == foodItemId);
+                var cartItem = await _context.Carts
+                    .FirstOrDefaultAsync(c => c.CustomerId == customerId && c.FoodItemId == foodItemId);
 
                 if (cartItem != null)
                 {
                     _context.Carts.Remove(cartItem);
                     await _context.SaveChangesAsync();
-                    return Json(new { success = true, message = "Item removed from cart" });
                 }
 
-                return Json(new { success = false, message = "Item not found in cart" });
+                return RedirectToAction("Cart");
             }
 
-            return Json(new { success = false, message = "User not logged in" });
+            return RedirectToAction("Login", "Customer");
         }
+
 
 
         // View cart
@@ -389,5 +391,110 @@ namespace SuvanaFoods.Controllers
 
             return View(contact); // Pass the contact (with AdminFeedback) to the view
         }
+
+        public async Task<IActionResult> Checkout()
+        {
+            if (HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+                var customer = await _context.Customers.FindAsync(customerId);
+
+                var cartItems = await _context.Carts
+                    .Where(c => c.CustomerId == customerId)
+                    .Include(c => c.FoodItem)
+                    .ToListAsync();
+
+                var model = new CheckoutViewModel
+                {
+                    Customer = customer,
+                    CartItems = cartItems
+                };
+
+                return View(model);
+            }
+
+            return RedirectToAction("Login", "Customer");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmOrder(CheckoutViewModel model)
+        {
+            if (HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+                var cartItems = await _context.Carts
+                    .Where(c => c.CustomerId == customerId)
+                    .Include(c => c.FoodItem)
+                    .ToListAsync();
+
+                foreach (var cartItem in cartItems)
+                {
+                    var order = new Order
+                    {
+                        CustomerId = customerId,
+                        Total = (decimal)(cartItem.FoodItem.Price * cartItem.Quantity), // Total price for each item
+                        DeliveryMode = model.DeliveryMode,
+                        Address = model.DeliveryMode == "Delivery" ? model.Address : null, // Address only if delivery
+                        PaymentMethod = model.PaymentMethod,
+                        Status = "Confirmed",
+                        PaymentStatus = "Pending"
+                    };
+
+                    _context.Orders.Add(order);
+                }
+
+                _context.Carts.RemoveRange(cartItems); // Empty the cart after placing the order
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("OrderConfirmed");
+            }
+
+            return RedirectToAction("Login", "Customer");
+        }
+
+        public IActionResult OrderConfirmed()
+        {
+            return View();
+        }
+
+        public IActionResult Cart()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult DownloadReceipt(int orderId)
+        {
+            var order = _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.FoodItem)
+                .FirstOrDefault(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var receiptViewModel = new ReceiptViewModel
+            {
+                OrderId = order.OrderId,
+                OrderDate = order.OrderDate,
+                CustomerName = order.Customer.Name,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemViewModel
+                {
+                    Name = oi.FoodItem.Name,
+                    Quantity = oi.Quantity,
+                    Price = oi.FoodItem.Price.GetValueOrDefault(),
+                    Total = oi.FoodItem.Price.GetValueOrDefault() * oi.Quantity
+                }).ToList(),
+                TotalAmount = order.Total
+            };
+
+            return new ViewAsPdf("Receipt", receiptViewModel)
+            {
+                FileName = $"OrderReceipt_{order.OrderId}.pdf"
+            };
+        }
+
     }
 }
