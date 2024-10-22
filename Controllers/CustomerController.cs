@@ -328,5 +328,66 @@ namespace SuvanaFoods.Controllers
 
             return RedirectToAction("Login", "Customer");
         }
+
+        // Returns the Contact_Us page to the user
+        [HttpGet]
+        public ActionResult ContactUs()
+        {
+            return View(new Contact());
+        }
+
+        // POST: customer post requests/queries
+        [HttpPost]
+        public ActionResult SubmitContact(Contact model)
+        {
+            if (ModelState.IsValid)
+            {
+                model.CreatedDate = DateTime.Now;
+                _context.Contacts.Add(model);
+                _context.SaveChanges();
+                return RedirectToAction("ThankYou", "Customer");
+            }
+            return View("ContactUs", model);
+        }
+
+        // Displays the Thank you page to the user
+        public ActionResult ThankYou()
+        {
+            return View();
+        }
+
+        // GET: Returns the feedback page to user
+        public ActionResult Feedback()
+        {
+            return View();
+        }
+
+        // GET: Messages
+        [HttpGet]
+        // GET: Messages
+        [HttpGet]
+        public IActionResult Messages()
+        {
+            var userId = User.Identity.Name;
+
+            var messages = _context.Contacts
+                .Where(c => c.Email == userId)
+                .ToList();
+
+            return View(messages); // Pass the list of messages to the view
+        }
+
+        // GET: the admins feedback on a query
+        [HttpGet]
+        public IActionResult UserFeedback(int id)
+        {
+            var contact = _context.Contacts.Find(id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return View(contact); // Pass the contact (with AdminFeedback) to the view
+        }
     }
 }

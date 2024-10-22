@@ -16,4 +16,8 @@ public partial class Contact
     public string? Message { get; set; }
 
     public DateTime? CreatedDate { get; set; }
+
+    public bool IsResolved { get; set; }
+
+    public string? AdminFeedback { get; set; }
 }

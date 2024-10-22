@@ -1,0 +1,66 @@
+﻿@model IEnumerable<SuvanaFoods.Models.Contact>
+
+<h2>Admin Queries</h2>
+
+<!-- Unresolved Queries -->
+<h3>Unresolved Queries</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Subject</th>
+            <th>Message</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var query in Model) 
+        {
+            <tr>
+                <td>@query.Name</td>
+                <td>@query.Email</td>
+                <td>@query.Subject</td>
+                <td>@query.Message</td>
+                <td>
+                    @using (Html.BeginForm("MarkAsResolved", "Admin", FormMethod.Post))
+                    {
+                        @Html.Hidden("id", query.ContactId)
+                        <button type="submit" class="btn btn-success">Mark as Resolved</button>
+                    }
+
+                    @Html.ActionLink("Send Feedback", "Feedback", "Admin", new { id = query.ContactId }, null)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Add space between sections -->
+<br /><br /><br />
+
+<!-- Resolved Queries -->
+<h3>Resolved Queries</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Subject</th>
+            <th>Message</th>
+            <th>Resolved Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var query in ViewBag.ResolvedQueries as List<SuvanaFoods.Models.Contact>) 
+            {
+            <tr>
+                <td>@query.Name</td>
+                <td>@query.Email</td>
+                <td>@query.Subject</td>
+                <td>@query.Message</td>
+                <td>@(query.CreatedDate.HasValue ? query.CreatedDate.Value.ToString("MM/dd/yyyy") : "N/A")</td>
+            </tr>
+        }
+    </tbody>
+</table>

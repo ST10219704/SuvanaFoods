@@ -1,12 +1,12 @@
 ﻿@{
-    <!-- The home page for farmers  -->
+    <!-- The home page for Customers  -->
     <!-- This was adapted from W3schools-->
     <!-- Link: https://www.w3schools.com/html/html_css.asp-->
-    ViewData["Title"] = "Farmer Home Page";
-    var farmerUsername = Context.Session.GetString("Username") ?? "Customer";
+    ViewData["Title"] = "Customer Home Page";
+    var CustUsername = Context.Session.GetString("Username") ?? "Customer";
 }
 
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -118,15 +118,142 @@
     <div class="bg-image"></div>
     <div class="main-content">
         <div class="content">
-            <h1 class="display-4">Welcome, @farmerUsername</h1>
+            <h1 class="display-4">Welcome, @CustUsername</h1>
             <img src="~/images/logo.jpg" alt="Agri-Energy Connect Logo" class="logo-image">
             <p> </p>
             <p>What would you like to do?</p>
             <div class="buttons">
                 <a href="/Farmer/AddProduct">Add Product</a>
                 <a href="/Farmer/ViewProducts">View Products</a>
+                <a href="@Url.Action("ContactUs", "Customer")">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Us</span>
+                </a>
             </div>
         </div>
     </div>
 </body>
-</html>
+</html> -->
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet"> <!-- Link to Google Fonts -->
+
+<div class="Customer-HomePage">
+    <div class="sidebar" id="sidebar">
+        <ul class="nav flex-column">         
+            <li class="nav-item">
+                <a href="@Url.Action("ContactUs", "Customer")">
+                    <i class="fas fa-envelope"></i>
+                    <span>Contact Us</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <div class="toggle-btn" id="toggle-btn">
+        <i class="fas fa-bars"></i>
+    </div>
+
+    <div class="content">
+        <h1 class="display-4">Welcome, @CustUsername</h1>
+        <p>HomePage</p>
+    </div>
+</div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    const sidebar = document.getElementById('sidebar');
+    const toggleBtn = document.getElementById('toggle-btn');
+    toggleBtn.addEventListener('click', function () {
+        sidebar.classList.toggle('collapsed');
+    });
+</script>
+
+<style>
+    body {
+        display: flex;
+        height: 100vh;
+        overflow: hidden;
+        background-color: #f0f0f0; /* Light gray background */
+        font-family: 'Poppins', sans-serif; /* Apply custom font */
+    }
+
+    .sidebar {
+        height: calc(100% - 50px); /* Adjust height to account for the top navbar */
+        background-color: #343a40;
+        min-width: 250px;
+        max-width: 250px;
+        transition: all 0.3s ease;
+        position: fixed; /* Sidebar docked to the left */
+        left: 0;
+        top: 75px; /* Push the sidebar down by 50px to avoid navbar collision */
+        bottom: 0;
+        overflow-y: auto; /* Allow vertical scrolling if needed */
+    }
+
+        .sidebar .nav-item {
+            padding: 15px;
+        }
+
+            .sidebar .nav-item a {
+                color: #fff;
+                text-decoration: none;
+            }
+
+                .sidebar .nav-item a:hover {
+                    background-color: #495057;
+                    border-radius: 5px;
+                }
+
+        .sidebar.collapsed {
+            min-width: 80px;
+            max-width: 80px;
+        }
+
+    .content {
+        margin-left: 250px; /* Adjust margin to avoid overlap with the sidebar */
+        flex-grow: 1;
+        padding: 20px;
+        text-align: center; /* Center the text */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+    }
+
+        .content h1 {
+            margin-top: 50px; /* Push content slightly down */
+            font-weight: 600;
+            font-size: 2.5rem;
+            color: #333;
+        }
+
+        .content p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+
+    .toggle-btn {
+        position: absolute;
+        top: 10px;
+        left: 250px;
+        cursor: pointer;
+    }
+
+    .sidebar.collapsed + .toggle-btn {
+        left: 80px;
+    }
+
+    .sidebar.collapsed .nav-item a {
+        text-align: center;
+    }
+
+    .sidebar.collapsed .nav-item span {
+        display: none;
+    }
+
+    .nav-item i {
+        margin-right: 10px;
+    }
+</style>
+

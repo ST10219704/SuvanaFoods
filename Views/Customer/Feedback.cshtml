@@ -1,0 +1,36 @@
+﻿@model IEnumerable<SuvanaFoods.Models.Contact>
+
+<h2>Your Messages</h2>
+
+@if (Model == null || !Model.Any())
+{
+    <p>No messages available.</p>
+}
+else
+{
+    <ul>
+        @foreach (var message in Model)
+        {
+            <li>
+                <strong>Feedback:</strong> @message.Message <br />
+                <strong>Subject:</strong> @message.Subject <br />
+                <em>Received on: @(message.CreatedDate.HasValue ? message.CreatedDate.Value.ToString("g") : "N/A")</em>
+            </li>
+        }
+    </ul>
+}
+
+<br />
+
+@if (Model.Any(m => !string.IsNullOrEmpty(m.AdminFeedback)))
+{
+    <h2>Feedback from Admin</h2>
+    @foreach (var message in Model)
+    {
+        if (!string.IsNullOrEmpty(message.AdminFeedback))
+        {
+            <p><strong>Admin's Feedback:</strong> @message.AdminFeedback for @message.Subject</p>
+        }
+    }
+}
+

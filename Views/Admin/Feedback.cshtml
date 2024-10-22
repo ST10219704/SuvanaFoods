@@ -1,0 +1,22 @@
+﻿@model SuvanaFoods.Models.Contact
+
+@{
+    ViewBag.Title = "Send Feedback";
+}
+
+<h2>Send Feedback</h2>
+
+<div class="feedback-form">
+    @using (Html.BeginForm("SendFeedback", "Admin", FormMethod.Post))
+    {
+        @Html.Hidden("ContactId", Model.ContactId) <!-- Pass the ContactId -->
+
+        <div class="form-group">
+            @Html.LabelFor(m => m.AdminFeedback)
+            @Html.TextAreaFor(m => m.AdminFeedback, new { @class = "form-control", placeholder = "Enter your feedback here", rows = 5 })
+            @Html.ValidationMessageFor(m => m.AdminFeedback)
+        </div>
+
+        <button type="submit" class="btn btn-primary">Send Feedback</button>
+    }
+</div>

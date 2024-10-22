@@ -291,7 +291,65 @@ namespace SuvanaFoods.Controllers
             return View(foodItem);
         }
 
+        // GET: the list of queries
+        [HttpGet]
+        public ActionResult Queries()
+        {
+            var unresolvedQueries = _context.Contacts.Where(c => !c.IsResolved).ToList();
+            var resolvedQueries = _context.Contacts.Where(c => c.IsResolved).ToList();
+
+            // Pass both lists via ViewBag
+            ViewBag.UnresolvedQueries = unresolvedQueries;
+            ViewBag.ResolvedQueries = resolvedQueries;
+
+            return View(unresolvedQueries); // Pass unresolved queries as the main mode
+        }
+
+        // POST: Mark the query as resolved
+        [HttpPost]
+        public IActionResult MarkAsResolved(int id)
+        {
+            var query = _context.Contacts.Find(id);
+            if (query != null)
+            {
+                query.IsResolved = true; // Mark the query as resolved
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Queries", "Admin");
+        }
 
 
+        // GET: the contact details of the user.
+        [HttpGet]
+        public IActionResult Feedback(int id)
+        {
+            var contact = _context.Contacts.Find(id);
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            return View(contact); 
+        }
+
+        // POST: processes the admins feedback after it is submitted.
+        [HttpPost]
+        public IActionResult SendFeedback(Contact model)
+        {
+            var contact = _context.Contacts.Find(model.ContactId);
+
+            if (contact == null)
+            {
+                return NotFound();
+            }
+
+            // Store the feedback
+            contact.AdminFeedback = model.AdminFeedback;
+            _context.SaveChanges();
+
+            // Optionally, you can send an email notification to the user here
+
+            return RedirectToAction("Queries", "Admin");
+        }
     }
 }
