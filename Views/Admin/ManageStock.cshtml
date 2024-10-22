@@ -92,7 +92,7 @@
                             <td>@(item.Quantity > 0 ? "In Stock" : "Out of Stock")</td>
                             <td>@(item.IsActive ?? false ? "Active" : "Inactive")</td>
                             <td>
-                                <a href="@Url.Action("UpdateStock", "Admin", new { id = item.FoodItemId })" class="btn btn-warning">Update Stock</a>
+                                <a href="@Url.Action("EditFoodItem", "Admin", new { id = item.FoodItemId })" class="btn btn-warning">Update Stock</a>
                                 <a href="@Url.Action("DeleteProduct", "Admin", new { id = item.FoodItemId })" class="btn btn-danger">Remove</a>
                             </td>
                         </tr>

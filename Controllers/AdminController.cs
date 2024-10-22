@@ -209,5 +209,89 @@ namespace SuvanaFoods.Controllers
             return View(foodItems);
         }
 
+        // GET: Edit Food Item
+        public async Task<IActionResult> EditFoodItem(int id)
+        {
+            var foodItem = await _context.FoodItems.FindAsync(id);
+            if (foodItem == null)
+            {
+                return NotFound();
+            }
+
+            ViewBag.Categories = new SelectList(await _context.Categories.Where(c => (bool)c.IsActive).ToListAsync(), "Name", "Name");
+            var model = new AddFoodItemView
+            {
+                Name = foodItem.Name,
+                Description = foodItem.Description,
+                Price = (decimal)foodItem.Price,
+                Quantity = (int)foodItem.Quantity,
+                Category = foodItem.Category,
+                ImageUrl = foodItem.ImageUrl,
+                IsActive = (bool)foodItem.IsActive
+            };
+
+            return View(model);
+        }
+
+        // POST: Edit Food Item
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> EditFoodItem(int id, AddFoodItemView foodItem, IFormFile? imageFile)
+        {
+            var existingFoodItem = await _context.FoodItems.FindAsync(id);
+            if (existingFoodItem == null)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                // If a new image file is uploaded, update the image
+                if (imageFile != null && imageFile.Length > 0)
+                {
+                    // Create a unique filename
+                    var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(imageFile.FileName);
+                    var imagePath = Path.Combine(ImageDirectory, uniqueFileName);
+
+                    // Ensure the directory exists
+                    Directory.CreateDirectory(ImageDirectory);
+
+                    using (var stream = new FileStream(imagePath, FileMode.Create))
+                    {
+                        await imageFile.CopyToAsync(stream);
+                    }
+
+                    // Delete old image if exists
+                    if (!string.IsNullOrEmpty(existingFoodItem.ImageUrl))
+                    {
+                        var oldImagePath = Path.Combine(Directory.GetCurrentDirectory(), existingFoodItem.ImageUrl.TrimStart('/'));
+                        if (System.IO.File.Exists(oldImagePath))
+                        {
+                            System.IO.File.Delete(oldImagePath);
+                        }
+                    }
+
+                    existingFoodItem.ImageUrl = $"/{imagePath}";
+                }
+
+                // Update existing food item details
+                existingFoodItem.Name = foodItem.Name;
+                existingFoodItem.Description = foodItem.Description;
+                existingFoodItem.Price = foodItem.Price;
+                existingFoodItem.Quantity = foodItem.Quantity;
+                existingFoodItem.Category = foodItem.Category;
+                existingFoodItem.IsActive = foodItem.IsActive;
+
+                _context.Update(existingFoodItem);
+                await _context.SaveChangesAsync();
+                return RedirectToAction("ManageStock");
+            }
+
+            ViewBag.Categories = new SelectList(await _context.Categories.Where(c => (bool)c.IsActive).ToListAsync(), "Name", "Name");
+            return View(foodItem);
+        }
+
+
+
     }
 }
