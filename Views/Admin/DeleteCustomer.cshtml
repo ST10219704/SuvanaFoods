@@ -1,0 +1,18 @@
+﻿@model SuvanaFoods.Models.Customer
+
+<div class="container">
+    <h1>Delete Customer</h1>
+    <h3>Are you sure you want to delete this customer?</h3>
+    <div>
+        <strong>Name:</strong> @Model.Name<br />
+        <strong>Email:</strong> @Model.Email<br />
+        <strong>Username:</strong> @Model.Username<br />
+        <strong>Mobile:</strong> @Model.Mobile<br />
+    </div>
+    <form asp-action="DeleteConfirmed">
+        <input type="hidden" asp-for="CustomerId" />
+        <button type="submit" class="btn btn-danger">Delete</button>
+        <a asp-action="Customers" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+

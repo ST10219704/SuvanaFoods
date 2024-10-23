@@ -352,6 +352,83 @@ namespace SuvanaFoods.Controllers
             return RedirectToAction("Queries", "Admin");
         }
 
+        // GET: Admin/Customers
+        public IActionResult Customers()
+        {
+            var customers = _context.Customers.ToList();
+            return View(customers);
+        }
 
+        // GET: Admin/EditCustomer/5
+        public IActionResult EditCustomer(int id)
+        {
+            var customer = _context.Customers.Find(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return View(customer);
+        }
+
+        // POST: Admin/EditCustomer/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult EditCustomer(int id, Customer customer)
+        {
+            if (id != customer.CustomerId)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    _context.Update(customer);
+                    _context.SaveChanges();
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    if (!CustomerExists(customer.CustomerId))
+                    {
+                        return NotFound();
+                    }
+                    else
+                    {
+                        throw;
+                    }
+                }
+                return RedirectToAction(nameof(Customers));
+            }
+            return View(customer);
+        }
+
+        // GET: Admin/DeleteCustomer/5
+        public IActionResult DeleteCustomer(int id)
+        {
+            var customer = _context.Customers.Find(id);
+            if (customer == null)
+            {
+                return NotFound();
+            }
+            return View(customer);
+        }
+
+        // POST: Admin/DeleteCustomer/5
+        [HttpPost, ActionName("DeleteCustomer")]
+        [ValidateAntiForgeryToken]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            var customer = _context.Customers.Find(id);
+            _context.Customers.Remove(customer);
+            _context.SaveChanges();
+            return RedirectToAction(nameof(Customers));
+        }
+
+        private bool CustomerExists(int id)
+        {
+            return _context.Customers.Any(e => e.CustomerId == id);
+        }
     }
 }
+
