@@ -267,7 +267,8 @@ namespace SuvanaFoods.Controllers
             if (HttpContext.Session.TryGetValue("UserId", out var value))
             {
                 var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
-                var cartItem = await _context.Carts.FirstOrDefaultAsync(c => c.CustomerId == customerId && c.FoodItemId == foodItemId);
+                var cartItem = await _context.Carts
+                    .FirstOrDefaultAsync(c => c.CustomerId == customerId && c.FoodItemId == foodItemId);
 
                 if (cartItem != null)
                 {
@@ -276,7 +277,7 @@ namespace SuvanaFoods.Controllers
                     if (foodItem != null && quantity <= foodItem.Quantity)
                     {
                         cartItem.Quantity = quantity;
-                        await _context.SaveChangesAsync();
+                        await _context.SaveChangesAsync(); // Save the changes to the database
                         return Json(new { success = true, message = "Cart updated" });
                     }
                     else
@@ -284,14 +285,15 @@ namespace SuvanaFoods.Controllers
                         return Json(new { success = false, message = "Quantity exceeds available stock" });
                     }
                 }
-
                 return Json(new { success = false, message = "Item not found in cart" });
             }
 
             return Json(new { success = false, message = "User not logged in" });
         }
 
-        // Remove item from cart
+
+        // Remove item from cart when the user clicks remove
+        [HttpPost]
         public async Task<IActionResult> RemoveFromCart(int foodItemId)
         {
             if (HttpContext.Session.TryGetValue("UserId", out var value))
@@ -303,14 +305,17 @@ namespace SuvanaFoods.Controllers
                 if (cartItem != null)
                 {
                     _context.Carts.Remove(cartItem);
-                    await _context.SaveChangesAsync();
+                    await _context.SaveChangesAsync(); // Save the changes to the database
+                    return Json(new { success = true, message = "Item removed" });
                 }
 
-                return RedirectToAction("Cart");
+                return Json(new { success = false, message = "Item not found in cart" });
             }
 
-            return RedirectToAction("Login", "Customer");
+            return Json(new { success = false, message = "User not logged in" });
         }
+
+
 
 
 

@@ -128,46 +128,117 @@
 
 @section Scripts {
     <script>
+        // Quantity change event
         document.querySelectorAll('.quantity-input').forEach(input => {
             input.addEventListener('change', function () {
                 const itemId = this.getAttribute('data-item-id');
                 const quantity = parseInt(this.value);
-                const maxQuantity = parseInt(this.getAttribute('max'));
-                const pricePerItem = parseFloat(this.getAttribute('data-price'));
 
-                if (quantity > maxQuantity) {
-                    document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'block';
-                    this.value = maxQuantity;
-                } else {
-                    document.querySelector(`.stock-warning[data-item-id='${itemId}']`).style.display = 'none';
-                }
-
-                // Update the total price for this item
-                document.querySelector(`.item-total[data-item-id='${itemId}']`).innerText = "R " + (pricePerItem * quantity).toFixed(2);
-
-                // Update the total amount for all items
-                updateTotalAmount();
+                // Trigger an Ajax request to update the quantity in the database
+                $.ajax({
+                    url: '@Url.Action("UpdateCartQuantity")',
+                    type: 'POST',
+                    data: {
+                        foodItemId: itemId,
+                        quantity: quantity
+                    },
+                    success: function (response) {
+                        if (response.success) {
+                            // Update the price and total amount on the page
+                            const pricePerItem = parseFloat(input.getAttribute('data-price'));
+                            document.querySelector(`.item-total[data-item-id='${itemId}']`).innerText = "R " + (pricePerItem * quantity).toFixed(2);
+                            updateTotalAmount();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error updating quantity.");
+                    }
+                });
             });
         });
 
+
+        // Function to update cart quantity
+        function updateCartQuantity(foodItemId, quantity, pricePerItem) {
+            $.ajax({
+                url: '@Url.Action("UpdateCartQuantity", "Cart")',
+                type: 'POST',
+                data: { foodItemId: foodItemId, quantity: quantity },
+                success: function (response) {
+                    if (response.success) {
+                        // Update the total price for this item
+                        document.querySelector(`.item-total[data-item-id='${foodItemId}']`).innerText = "R " + (pricePerItem * quantity).toFixed(2);
+
+                        // Update the total amount for all items
+                        updateTotalAmount();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert('Error updating quantity');
+                }
+            });
+        }
+
+        // Function to remove an item from the cart
+        document.querySelectorAll('.remove-item').forEach(button => {
+            button.addEventListener('click', function () {
+                const itemId = this.getAttribute('data-item-id');
+
+                // Trigger an Ajax request to remove the item from the cart
+                $.ajax({
+                    url: '@Url.Action("RemoveFromCart")',
+                    type: 'POST',
+                    data: { foodItemId: itemId },
+                    success: function (response) {
+                        if (response.success) {
+                            // Remove the item row from the table
+                            document.querySelector(`tr[data-item-id='${itemId}']`).remove();
+                            updateTotalAmount();
+                        } else {
+                            alert(response.message);
+                        }
+                    },
+                    error: function () {
+                        alert("Error removing item.");
+                    }
+                });
+            });
+        });
+
+
+        // Remove item from cart (page and DB)
+        function removeFromCart(itemId) {
+            $.ajax({
+                url: '@Url.Action("RemoveFromCart", "Cart")',
+                type: 'POST',
+                data: { foodItemId: itemId },
+                success: function (response) {
+                    if (response.success) {
+                        // Remove the item row from the page
+                        document.querySelector(`tr[data-item-id='${itemId}']`).remove();
+                        // Update the total amount for all items
+                        updateTotalAmount();
+                    } else {
+                        alert(response.message);
+                    }
+                },
+                error: function () {
+                    alert('Error removing item');
+                }
+            });
+        }
+
+        // Update the total amount for all items
         function updateTotalAmount() {
             let total = 0;
             document.querySelectorAll('.item-total').forEach(item => {
                 total += parseFloat(item.innerText.replace("R ", ""));
             });
             document.getElementById('total-amount').innerText = total.toFixed(2);
-        }
-
-        document.querySelectorAll('.remove-item').forEach(button => {
-            button.addEventListener('click', function () {
-                const itemId = this.getAttribute('data-item-id');
-                removeFromCart(itemId);
-            });
-        });
-
-        function removeFromCart(itemId) {
-            document.querySelector(`tr[data-item-id='${itemId}']`).remove();
-            updateTotalAmount();
         }
     </script>
 }
