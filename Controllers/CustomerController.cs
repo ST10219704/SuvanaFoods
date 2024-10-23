@@ -315,10 +315,6 @@ namespace SuvanaFoods.Controllers
             return Json(new { success = false, message = "User not logged in" });
         }
 
-
-
-
-
         // View cart
         public async Task<IActionResult> ViewCart()
         {
@@ -422,49 +418,108 @@ namespace SuvanaFoods.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> ConfirmOrder(CheckoutViewModel model)
+        public async Task<IActionResult> OrderConfirmed(CheckoutViewModel model)
         {
             if (HttpContext.Session.TryGetValue("UserId", out var value))
             {
                 var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+                var customer = await _context.Customers.FindAsync(customerId);
                 var cartItems = await _context.Carts
                     .Where(c => c.CustomerId == customerId)
                     .Include(c => c.FoodItem)
                     .ToListAsync();
 
+                var order = new Order
+                {
+                    CustomerId = customerId,
+                    DeliveryMode = model.DeliveryMode,
+                    Address = model.DeliveryMode == "Delivery" ? model.Address : null,
+                    PaymentMethod = model.PaymentMethod,
+                    Status = "Confirmed",
+                    PaymentStatus = "Pending",
+                    OrderDate = DateTime.Now,
+                    OrderItems = new List<OrderItem>() // Ensure this is initialized
+                };
+
+
                 foreach (var cartItem in cartItems)
                 {
-                    var order = new Order
+                    var orderItem = new OrderItem
                     {
-                        CustomerId = customerId,
-                        Total = (decimal)(cartItem.FoodItem.Price * cartItem.Quantity), // Total price for each item
-                        DeliveryMode = model.DeliveryMode,
-                        Address = model.DeliveryMode == "Delivery" ? model.Address : null, // Address only if delivery
-                        PaymentMethod = model.PaymentMethod,
-                        Status = "Confirmed",
-                        PaymentStatus = "Pending"
+                        FoodItemId = cartItem.FoodItem.FoodItemId,
+                        Quantity = (int)cartItem.Quantity
                     };
-
-                    _context.Orders.Add(order);
+                    order.OrderItems.Add(orderItem);
                 }
 
-                _context.Carts.RemoveRange(cartItems); // Empty the cart after placing the order
+                order.Total = (decimal)order.OrderItems
+    .Where(item => item.FoodItem != null && item.FoodItem.Price != null) // Check for null FoodItem or Price
+    .Sum(item => item.FoodItem.Price.GetValueOrDefault() * item.Quantity);
+
+
+                _context.Orders.Add(order);
+                _context.Carts.RemoveRange(cartItems); // Clear the cart
                 await _context.SaveChangesAsync();
 
-                return RedirectToAction("OrderConfirmed");
+                // Prepare the order confirmation message
+                var confirmationMessage = model.DeliveryMode == "Pickup"
+                    ? "Thank you! Your order is being processed and will be ready for pickup in 30-45 mins."
+                    : "Thank you! Your order is being processed and will be delivered in 45-60 mins.";
+
+                // Create the OrderConfirmedViewModel
+                var orderConfirmedViewModel = new OrderConfirmedViewModel
+                {
+                    OrderId = order.OrderId,
+                    CustomerName = customer.Name,
+                    DeliveryMode = order.DeliveryMode,
+                    Address = order.Address,
+                    OrderDate = (DateTime)order.OrderDate,
+                    TotalAmount = order.Total,
+                    ConfirmationMessage = confirmationMessage,
+                    OrderItems = order.OrderItems.Select(oi => new OrderItemViewModel
+                    {
+                        Name = oi.FoodItem.Name,
+                        Quantity = oi.Quantity,
+                        Price = oi.FoodItem.Price.GetValueOrDefault(),
+                        Total = oi.FoodItem.Price.GetValueOrDefault() * oi.Quantity
+                    }).ToList()
+                };
+
+                return View("OrderConfirmed", orderConfirmedViewModel);
             }
 
             return RedirectToAction("Login", "Customer");
         }
 
-        public IActionResult OrderConfirmed()
-        {
-            return View();
-        }
 
-        public IActionResult Cart()
+        public IActionResult OrderConfirmed(int orderId)
         {
-            return View();
+            var order = _context.Orders
+                .Include(o => o.OrderItems)
+                .ThenInclude(oi => oi.FoodItem)
+                .FirstOrDefault(o => o.OrderId == orderId);
+
+            if (order == null)
+            {
+                return NotFound();
+            }
+
+            var viewModel = new OrderConfirmedViewModel
+            {
+                OrderId = order.OrderId,
+                CustomerName = order.Customer.Name,
+                OrderNo = order.OrderNo,
+                DeliveryMode = order.DeliveryMode,
+                TotalAmount = order.Total,
+                OrderItems = order.OrderItems.Select(oi => new OrderItemViewModel
+                {
+                    Name = oi.FoodItem.Name,
+                    Quantity = oi.Quantity,
+                    Price = (decimal)oi.FoodItem.Price
+                }).ToList()
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -483,7 +538,7 @@ namespace SuvanaFoods.Controllers
             var receiptViewModel = new ReceiptViewModel
             {
                 OrderId = order.OrderId,
-                OrderDate = order.OrderDate,
+                OrderDate = (DateTime)order.OrderDate,
                 CustomerName = order.Customer.Name,
                 OrderItems = order.OrderItems.Select(oi => new OrderItemViewModel
                 {
@@ -500,6 +555,7 @@ namespace SuvanaFoods.Controllers
                 FileName = $"OrderReceipt_{order.OrderId}.pdf"
             };
         }
+
 
     }
 }

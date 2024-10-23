@@ -35,19 +35,19 @@ public partial class SuvanaFoodsDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-JP19TVO;Initial Catalog=SuvanaFoodsDB;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
+        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-JP19TVO; Initial Catalog=SuvanaFoodsDB; Encrypt=False; Integrated Security=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Admin>(entity =>
         {
-            entity.HasKey(e => e.AdminId).HasName("PK__Admin__719FE4E8D2437FA6");
+            entity.HasKey(e => e.AdminId).HasName("PK__Admin__719FE4E8441D08B0");
 
             entity.ToTable("Admin");
 
-            entity.HasIndex(e => e.Username, "UQ__Admin__536C85E48E95D1BD").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Admin__536C85E4F77DD382").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Admin__A9D1053424A8D732").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Admin__A9D105345D0B774B").IsUnique();
 
             entity.Property(e => e.AdminId).HasColumnName("AdminID");
             entity.Property(e => e.Email)
@@ -69,23 +69,23 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B74033EF65");
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B72C8600EA");
 
             entity.ToTable("Cart");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cart__CustomerId__46E78A0C");
+                .HasConstraintName("FK__Cart__CustomerId__5CD6CB2B");
 
             entity.HasOne(d => d.FoodItem).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.FoodItemId)
-                .HasConstraintName("FK__Cart__FoodItemId__47DBAE45");
+                .HasConstraintName("FK__Cart__FoodItemId__5DCAEF64");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B29FE01DA");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B7ED0AA78");
 
             entity.ToTable("Category");
 
@@ -114,18 +114,19 @@ public partial class SuvanaFoodsDbContext : DbContext
                 .IsUnicode(false);
             entity.Property(e => e.IsResolved)
                   .IsRequired()
-                  .HasDefaultValue(false); 
+                  .HasDefaultValue(false);
         });
+
 
         modelBuilder.Entity<Customer>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64B89A40AA19");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64B81B40F029");
 
             entity.ToTable("Customer");
 
-            entity.HasIndex(e => e.Username, "UQ__Customer__536C85E44F654C80").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Customer__536C85E4F12A4466").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Customer__A9D10534913F201B").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Customer__A9D105348BF19A2B").IsUnique();
 
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.Address).IsUnicode(false);
@@ -149,7 +150,7 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<FoodItem>(entity =>
         {
-            entity.HasKey(e => e.FoodItemId).HasName("PK__FoodItem__464DC812371B5D97");
+            entity.HasKey(e => e.FoodItemId).HasName("PK__FoodItem__464DC8128A226572");
 
             entity.ToTable("FoodItem");
 
@@ -234,11 +235,9 @@ public partial class SuvanaFoodsDbContext : DbContext
         });
 
 
-
-
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A3826B56668");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A38E08C3581");
 
             entity.ToTable("Payment");
 

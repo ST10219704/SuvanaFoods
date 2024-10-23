@@ -1,54 +1,31 @@
 ﻿@model SuvanaFoods.Models.ReceiptViewModel
 
-<div class="container receipt-pdf">
-    <h2>Receipt</h2>
-    <p><strong>Order Number:</strong> @Model.OrderId</p>
-    <p><strong>Date:</strong> @Model.OrderDate.ToString("MMMM dd, yyyy")</p>
-    <p><strong>Customer:</strong> @Model.CustomerName</p>
-    <hr />
-    <table class="table table-bordered">
-        <thead>
+<h2>Order Receipt</h2>
+<p>Order Number: @Model.OrderId</p>
+<p>Date: @Model.OrderDate.ToString("dd MMM yyyy")</p>
+<p>Customer Name: @Model.CustomerName</p>
+
+<h3>Order Items</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Item</th>
+            <th>Quantity</th>
+            <th>Price</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.OrderItems)
+        {
             <tr>
-                <th>Menu Item</th>
-                <th>Quantity</th>
-                <th>Price</th>
-                <th>Total</th>
+                <td>@item.Name</td>
+                <td>@item.Quantity</td>
+                <td>R @item.Price:F2</td>
+                <td>R @(item.Price * item.Quantity):F2</td>
             </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.OrderItems)
-            {
-                <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Quantity</td>
-                    <td>R @item.Price.ToString("F2")</td>
-                    <td>R @item.Total.ToString("F2")</td>
-                </tr>
-            }
-        </tbody>
-    </table>
-
-    <p class="text-right"><strong>Total Amount:</strong> R @Model.TotalAmount.ToString("F2")</p>
-</div>
-
-<style>
-    .receipt-pdf {
-        padding: 20px;
-    }
-
-    .table {
-        width: 100%;
-        margin-top: 20px;
-        border-collapse: collapse;
-    }
-
-        .table th, .table td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
         }
+    </tbody>
+</table>
 
-    .text-right {
-        text-align: right;
-    }
-</style>
+<h3>Total Amount: R @Model.TotalAmount:F2</h3>

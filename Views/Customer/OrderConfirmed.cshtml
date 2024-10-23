@@ -1,89 +1,63 @@
-﻿@model SuvanaFoods.Models.Order
+﻿@model SuvanaFoods.Models.OrderConfirmedViewModel
 
-@{
-    ViewBag.Title = "Order Confirmed";
-}
+<div class="container">
+    <h1>Order Confirmation</h1>
+    <p>@Model.ConfirmationMessage</p>
 
-<div class="container confirmation-container">
-    <h1>Order Confirmed!</h1>
-    <p>Thank you for your order. Your order has been successfully placed and is being processed. Below is your receipt:</p>
+    <h3>Order Details</h3>
+    <p><strong>Order No:</strong> @Model.OrderId</p>
+    <p><strong>Date:</strong> @Model.OrderDate.ToShortDateString()</p>
+    <p><strong>Name:</strong> @Model.CustomerName</p>
+    <p><strong>Delivery Mode:</strong> @Model.DeliveryMode</p>
+    @if (Model.DeliveryMode == "Delivery")
+    {
+        <p><strong>Delivery Address:</strong> @Model.Address</p>
+    }
 
-    <div class="receipt">
-        <h2>Receipt</h2>
-        <p><strong>Order Number:</strong> @Model.OrderId</p>
-        <p><strong>Date:</strong> @Model.OrderDate.ToString("MMMM dd, yyyy")</p>
-        <p><strong>Customer:</strong> @Model.Customer.Name</p>
-        <hr />
-        <table class="table table-bordered">
-            <thead>
+    <h3>Items:</h3>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Item</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.OrderItems)
+            {
                 <tr>
-                    <th>Menu Item</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
+                    <td>@item.Name</td>
+                    <td>@item.Quantity</td>
+                    <td>R @item.Price:F2</td>
+                    <td>R @item.Total:F2</td>
                 </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.OrderItems)
-                {
-                    <tr>
-                        <td>@item.FoodItem.Name</td>
-                        <td>@item.Quantity</td>
-                        <td>R @item.FoodItem.Price?.ToString("F2")</td>
-                        <td>R @(item.FoodItem.Price.GetValueOrDefault() * item.Quantity).ToString("F2")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+            }
+        </tbody>
+    </table>
 
-        <p class="text-right"><strong>Total Amount:</strong> R @Model.Total.ToString("F2")</p>
-    </div>
+    <h4>Total Amount: R @Model.TotalAmount:F2</h4>
 
-    <div class="download-receipt">
-        <form action="@Url.Action("DownloadReceipt", "Order", new { orderId = Model.OrderId })" method="post">
-            <button type="submit" class="btn btn-primary">Download Receipt as PDF</button>
-        </form>
+    <div class="checkout-actions">
+        <a href="/Order/DownloadReceipt?orderId=@Model.OrderId" class="btn btn-primary">Download Receipt</a>
     </div>
 </div>
 
+
 <style>
-    .confirmation-container {
-        margin-top: 75px;
+    .container {
+        margin-top: 50px;
     }
 
-    h1 {
-        text-align: center;
-        color: #4CAF50;
-        margin-bottom: 20px;
-    }
-
-    .receipt {
-        margin-top: 30px;
-        padding: 20px;
-        border: 1px solid #ccc;
-        background-color: #f9f9f9;
-    }
-
-    .table th {
-        background-color: #007bff;
-        color: white;
-    }
-
-    .table td {
-        text-align: center;
-    }
-
-    .text-right {
+    .order-total {
         text-align: right;
-    }
-
-    .download-receipt {
-        text-align: center;
         margin-top: 20px;
+        font-size: 18px;
     }
 
-    .btn-primary {
-        background-color: #007bff;
-        color: white;
+    .checkout-actions {
+        text-align: center;
+        margin-top: 30px;
     }
 </style>

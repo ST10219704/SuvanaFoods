@@ -10,7 +10,7 @@
     <!-- Customer Details -->
     <div class="customer-details">
         <h3>Customer Details</h3>
-        <form id="checkout-form" method="post" action="/Order/ConfirmOrder">
+        <form id="checkout-form" method="post" action="/Customer/OrderConfirmed">
             <div class="form-group">
                 <label for="Name">Name:</label>
                 <input type="text" name="Name" value="@Model.Customer.Name" class="form-control" required />
@@ -43,41 +43,41 @@
                 <input type="radio" id="card" name="PaymentMethod" value="Card" />
                 <label for="card">Card</label>
             </div>
+
+            <!-- Order Summary Section -->
+            <div class="order-summary">
+                <h3>Order Summary</h3>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Menu Item</th>
+                            <th>Quantity</th>
+                            <th>Price</th>
+                            <th>Total</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.CartItems)
+                        {
+                            <tr>
+                                <td>@item.FoodItem.Name</td>
+                                <td>@item.Quantity</td>
+                                <td>R @item.FoodItem.Price:F2</td>
+                                <td>R @(item.FoodItem.Price * item.Quantity):F2</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                <div class="order-total">
+                    <h4><strong>Total: R @Model.CartItems.Sum(i => i.FoodItem.Price * i.Quantity):F2</strong></h4>
+                </div>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="checkout-actions">
+                <button type="submit" class="btn btn-success btn-lg">Confirm Order</button>
+            </div>
         </form>
-    </div>
-
-    <!-- Order Summary Section -->
-    <div class="order-summary">
-        <h3>Order Summary</h3>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Menu Item</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model.CartItems)
-                {
-                    <tr>
-                        <td>@item.FoodItem.Name</td>
-                        <td>@item.Quantity</td>
-                        <td>R @item.FoodItem.Price:F2</td>
-                        <td>R @(item.FoodItem.Price * item.Quantity):F2</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-        <div class="order-total">
-            <h4><strong>Total: R @Model.CartItems.Sum(i => i.FoodItem.Price * i.Quantity):F2</strong></h4>
-        </div>
-    </div>
-
-    <!-- Submit Button -->
-    <div class="checkout-actions">
-        <button type="submit" class="btn btn-success btn-lg">Confirm Order</button>
     </div>
 </div>
 
