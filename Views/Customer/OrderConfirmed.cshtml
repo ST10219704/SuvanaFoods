@@ -30,17 +30,18 @@
                 <tr>
                     <td>@item.Name</td>
                     <td>@item.Quantity</td>
-                    <td>R @item.Price:F2</td>
-                    <td>R @item.Total:F2</td>
+                    <td>R @String.Format("{0:F2}", item.Price)</td>
+                    <td>R @String.Format("{0:F2}", item.Total)</td>
                 </tr>
             }
         </tbody>
     </table>
 
-    <h4>Total Amount: R @Model.TotalAmount:F2</h4>
+    <h4>Total Amount: R @String.Format("{0:F2}", Model.TotalAmount)</h4>
+
 
     <div class="checkout-actions">
-        <a href="/Order/DownloadReceipt?orderId=@Model.OrderId" class="btn btn-primary">Download Receipt</a>
+        <a href="/Customer/DownloadReceipt?orderId=@Model.OrderId" class="btn btn-primary">Download Receipt</a>
     </div>
 </div>
 

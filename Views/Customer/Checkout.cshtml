@@ -62,15 +62,17 @@
                             <tr>
                                 <td>@item.FoodItem.Name</td>
                                 <td>@item.Quantity</td>
-                                <td>R @item.FoodItem.Price:F2</td>
-                                <td>R @(item.FoodItem.Price * item.Quantity):F2</td>
+                                <td>R @String.Format("{0:F2}", item.FoodItem.Price)</td>
+                                <td>R @String.Format("{0:F2}", item.FoodItem.Price * item.Quantity)</td>
+
                             </tr>
                         }
                     </tbody>
                 </table>
                 <div class="order-total">
-                    <h4><strong>Total: R @Model.CartItems.Sum(i => i.FoodItem.Price * i.Quantity):F2</strong></h4>
+                    <h4><strong>Total: R @String.Format("{0:F2}", Model.CartItems.Sum(i => i.FoodItem.Price * i.Quantity))</strong></h4>
                 </div>
+
             </div>
 
             <!-- Submit Button -->
