@@ -439,8 +439,10 @@ namespace SuvanaFoods.Controllers
                     Status = "Confirmed",
                     PaymentStatus = "Pending",
                     OrderDate = DateTime.Now,
-                    OrderItems = new List<OrderItem>() // Initialize the list
+                    OrderNo = GenerateOrderNumber(), // Assign random OrderNo here
+                    OrderItems = new List<OrderItem>() // Ensure this is initialized
                 };
+
 
                 foreach (var cartItem in cartItems)
                 {
@@ -556,6 +558,14 @@ namespace SuvanaFoods.Controllers
             {
                 FileName = $"OrderReceipt_{order.OrderId}.pdf"
             };
+        }
+
+        private string GenerateOrderNumber(int length = 6)
+        {
+            var chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+            var random = new Random();
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
 
