@@ -30,4 +30,9 @@
         public decimal Total { get; set; }
     }
 
+    public class OrdersViewModel
+    {
+        public List<Order> CurrentOrders { get; set; }
+        public List<Order> PastOrders { get; set; }
+    }
 }

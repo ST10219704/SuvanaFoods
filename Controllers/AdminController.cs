@@ -429,6 +429,44 @@ namespace SuvanaFoods.Controllers
         {
             return _context.Customers.Any(e => e.CustomerId == id);
         }
+
+        // GET: Admin/ViewOrders
+        public IActionResult ViewOrders()
+        {
+            // Retrieve current orders (Status: Confirmed, PaymentStatus: Pending)
+            var currentOrders = _context.Orders
+                .Where(o => o.Status == "Confirmed" && o.PaymentStatus == "Pending")
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+
+            // Retrieve past orders (Status: Completed or PaymentStatus: Paid)
+            var pastOrders = _context.Orders
+                .Where(o => o.Status == "Completed" || o.PaymentStatus == "Paid")
+                .OrderByDescending(o => o.OrderDate)
+                .ToList();
+
+            var viewModel = new OrdersViewModel
+            {
+                CurrentOrders = currentOrders,
+                PastOrders = pastOrders
+            };
+
+            return View(viewModel);
+        }
+
+        // GET: Admin/UpdateOrderStatus
+        [HttpPost]
+        public IActionResult UpdateOrderStatus(int id, string status, string paymentStatus)
+        {
+            var order = _context.Orders.FirstOrDefault(o => o.OrderId == id);
+            if (order != null)
+            {
+                order.Status = status;
+                order.PaymentStatus = paymentStatus;
+                _context.SaveChanges();
+            }
+            return RedirectToAction("ViewOrders");
+        }
     }
 }
 
