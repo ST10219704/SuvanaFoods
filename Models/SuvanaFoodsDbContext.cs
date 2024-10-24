@@ -17,6 +17,8 @@ public partial class SuvanaFoodsDbContext : DbContext
 
     public virtual DbSet<Admin> Admins { get; set; }
 
+    public virtual DbSet<BookingEvent> BookingEvents { get; set; }
+
     public virtual DbSet<Cart> Carts { get; set; }
 
     public virtual DbSet<Category> Categories { get; set; }
@@ -35,19 +37,19 @@ public partial class SuvanaFoodsDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
 #warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseSqlServer("Data Source=DESKTOP-JP19TVO; Initial Catalog=SuvanaFoodsDB; Encrypt=False; Integrated Security=True");
+        => optionsBuilder.UseSqlServer("Data Source=ADMIN;Initial Catalog=SuvanaFoodsDB;Integrated Security=True;Encrypt=False;Trust Server Certificate=True");
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Admin>(entity =>
         {
-            entity.HasKey(e => e.AdminId).HasName("PK__Admin__719FE4E8441D08B0");
+            entity.HasKey(e => e.AdminId).HasName("PK__Admin__719FE4E8558F091B");
 
             entity.ToTable("Admin");
 
-            entity.HasIndex(e => e.Username, "UQ__Admin__536C85E4F77DD382").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Admin__536C85E401782B2F").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Admin__A9D105345D0B774B").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Admin__A9D10534ABA4EC74").IsUnique();
 
             entity.Property(e => e.AdminId).HasColumnName("AdminID");
             entity.Property(e => e.Email)
@@ -67,25 +69,59 @@ public partial class SuvanaFoodsDbContext : DbContext
                 .IsUnicode(false);
         });
 
+        modelBuilder.Entity<BookingEvent>(entity =>
+        {
+            entity.HasKey(e => e.BookingId).HasName("PK__BookingE__73951AED533A9DB2");
+
+            entity.ToTable("BookingEvent");
+
+            entity.Property(e => e.AdminApproval)
+                .HasMaxLength(20)
+                .IsUnicode(false)
+                .HasDefaultValue("Pending");
+            entity.Property(e => e.AdminMessage).IsUnicode(false);
+            entity.Property(e => e.AllocatedStaff)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.EventDate).HasColumnType("datetime");
+            entity.Property(e => e.EventLocation)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.EventName)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+
+            entity.HasOne(d => d.Customer).WithMany(p => p.BookingEvents)
+                .HasForeignKey(d => d.CustomerId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__BookingEv__Custo__6754599E");
+
+            entity.HasOne(d => d.OrderItem).WithMany(p => p.BookingEvents)
+                .HasForeignKey(d => d.OrderItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__BookingEv__Order__66603565");
+        });
+
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B72C8600EA");
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B7D61F120C");
 
             entity.ToTable("Cart");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cart__CustomerId__5CD6CB2B");
+                .HasConstraintName("FK__Cart__CustomerId__45F365D3");
 
             entity.HasOne(d => d.FoodItem).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.FoodItemId)
-                .HasConstraintName("FK__Cart__FoodItemId__5DCAEF64");
+                .HasConstraintName("FK__Cart__FoodItemId__46E78A0C");
         });
 
         modelBuilder.Entity<Category>(entity =>
         {
-            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B7ED0AA78");
+            entity.HasKey(e => e.CategoryId).HasName("PK__Category__19093A0B9C97A37F");
 
             entity.ToTable("Category");
 
@@ -96,7 +132,7 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<Contact>(entity =>
         {
-            entity.HasKey(e => e.ContactId).HasName("PK__Contact__5C66259B45D3F4BC");
+            entity.HasKey(e => e.ContactId).HasName("PK__Contact__5C66259B22E0CE3B");
 
             entity.ToTable("Contact");
 
@@ -112,21 +148,17 @@ public partial class SuvanaFoodsDbContext : DbContext
             entity.Property(e => e.Subject)
                 .HasMaxLength(200)
                 .IsUnicode(false);
-            entity.Property(e => e.IsResolved)
-                  .IsRequired()
-                  .HasDefaultValue(false);
         });
-
 
         modelBuilder.Entity<Customer>(entity =>
         {
-            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64B81B40F029");
+            entity.HasKey(e => e.CustomerId).HasName("PK__Customer__A4AE64B8E0BF4DA5");
 
             entity.ToTable("Customer");
 
-            entity.HasIndex(e => e.Username, "UQ__Customer__536C85E4F12A4466").IsUnique();
+            entity.HasIndex(e => e.Username, "UQ__Customer__536C85E4CD2AEDD4").IsUnique();
 
-            entity.HasIndex(e => e.Email, "UQ__Customer__A9D105348BF19A2B").IsUnique();
+            entity.HasIndex(e => e.Email, "UQ__Customer__A9D105341877B782").IsUnique();
 
             entity.Property(e => e.CustomerId).HasColumnName("CustomerID");
             entity.Property(e => e.Address).IsUnicode(false);
@@ -150,7 +182,7 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<FoodItem>(entity =>
         {
-            entity.HasKey(e => e.FoodItemId).HasName("PK__FoodItem__464DC8128A226572");
+            entity.HasKey(e => e.FoodItemId).HasName("PK__FoodItem__464DC81226EB2493");
 
             entity.ToTable("FoodItem");
 
@@ -165,79 +197,57 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCFE0AE8943");
+            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF8F7D738F");
 
             entity.ToTable("Order");
 
-            entity.Property(e => e.OrderNo)
-                .IsUnicode(false);
-
-            entity.Property(e => e.Total)
-                .HasColumnType("decimal(18, 2)")
-                .IsRequired();
-
+            entity.Property(e => e.Address).IsUnicode(false);
             entity.Property(e => e.DeliveryMode)
                 .HasMaxLength(50)
-                .IsUnicode(false)
-                .IsRequired();
-
-            entity.Property(e => e.Address)
                 .IsUnicode(false);
-
+            entity.Property(e => e.OrderDate)
+                .HasDefaultValueSql("(getdate())")
+                .HasColumnType("datetime");
+            entity.Property(e => e.OrderNo).IsUnicode(false);
             entity.Property(e => e.PaymentMethod)
                 .HasMaxLength(50)
-                .IsUnicode(false)
-                .IsRequired();
-
-            entity.Property(e => e.Status)
-                .HasMaxLength(50)
-                .IsUnicode(false)
-                .HasDefaultValue("Confirmed");
-
-            entity.Property(e => e.OrderDate)
-                .HasColumnType("datetime")
-                .HasDefaultValueSql("GETDATE()");
-
+                .IsUnicode(false);
             entity.Property(e => e.PaymentStatus)
                 .HasMaxLength(50)
                 .IsUnicode(false)
                 .HasDefaultValue("Pending");
+            entity.Property(e => e.Status)
+                .HasMaxLength(50)
+                .IsUnicode(false)
+                .HasDefaultValue("Confirmed");
+            entity.Property(e => e.Total).HasColumnType("decimal(18, 2)");
 
-            // Relationships
-            entity.HasOne(d => d.Customer)
-                .WithMany(p => p.Orders) // Ensure Customer has an Orders collection
+            entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Order__CustomerId__52593CB8");
+                .HasConstraintName("FK__Order__CustomerI__4CA06362");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderItem__C6D3A69F38D9B8A0");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED068197F1ABCF");
 
             entity.ToTable("OrderItem");
 
-            entity.Property(e => e.Quantity)
-                .IsRequired();
-
-            // Relationships
-            entity.HasOne(d => d.Order)
-                .WithMany(p => p.OrderItems) // Ensure Order has an OrderItems collection
-                .HasForeignKey(d => d.OrderId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__OrderId__5C9C36B8");
-
-            entity.HasOne(d => d.FoodItem)
-                .WithMany(p => p.OrderItems) // Ensure FoodItem has an OrderItems collection
+            entity.HasOne(d => d.FoodItem).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.FoodItemId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__FoodItemId__5C9C36B8");
-        });
+                .HasConstraintName("FK__OrderItem__FoodI__5070F446");
 
+            entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
+                .HasForeignKey(d => d.OrderId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__OrderItem__Order__4F7CD00D");
+        });
 
         modelBuilder.Entity<Payment>(entity =>
         {
-            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A38E08C3581");
+            entity.HasKey(e => e.PaymentId).HasName("PK__Payment__9B556A38B18E14B5");
 
             entity.ToTable("Payment");
 

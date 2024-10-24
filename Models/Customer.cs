@@ -21,6 +21,8 @@ public partial class Customer
 
     public string Password { get; set; } = null!;
 
+    public virtual ICollection<BookingEvent> BookingEvents { get; set; } = new List<BookingEvent>();
+
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
     public virtual ICollection<Order> Orders { get; set; } = new List<Order>();

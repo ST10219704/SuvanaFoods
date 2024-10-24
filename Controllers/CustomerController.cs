@@ -568,6 +568,54 @@ namespace SuvanaFoods.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
+        [HttpGet]
+        public ActionResult BookingEvent()
+        {
+            var model = new BookingEvent();
+            return View(model);
+        }
 
+        // POST: Allows customer to book an event
+        [HttpPost]
+        public async Task<IActionResult> BookingEvent(int orderItemId, string eventName, DateTime eventDate, string eventLocation)
+        {
+            // Check if the user is logged in by retrieving the CustomerId from session
+            if (HttpContext.Session.TryGetValue("UserId", out var value))
+            {
+                // Validate the inputs
+                if (eventDate < DateTime.Now)
+                {
+                    return Json(new { success = false, message = "Invalid date" });
+                }
+
+                var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
+                var existingOrderItem = await _context.OrderItems.FindAsync(orderItemId);
+
+                if (existingOrderItem == null)
+                {
+                    return Json(new { success = false, message = "Invalid Order Item." });
+                }
+
+                // Create a new booking event
+                var bookingEvent = new BookingEvent
+                {
+                    EventName = eventName,
+                    EventDate = eventDate,
+                    EventLocation = eventLocation,
+                    CustomerId = customerId,
+                    CreatedDate = DateTime.Now,
+                    AdminApproval = "Pending" // Default status for AdminApproval
+                };
+
+                // Save the new booking event to the database
+                _context.BookingEvents.Add(bookingEvent);
+                await _context.SaveChangesAsync();
+
+                return Json(new { success = true, message = "Event booking created successfully" });
+            }
+
+            // If the user is not logged in, return an error message
+            return Json(new { success = false, message = "User not logged in" });
+        }
     }
 }
