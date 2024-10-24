@@ -13,7 +13,7 @@ public partial class BookingEvent
 
     public string EventName { get; set; } = null!;
 
-    public DateTime EventDate { get; set; }
+    public DateTime EventDate { get; set; } = DateTime.Now;
 
     public string? EventLocation { get; set; }
 
