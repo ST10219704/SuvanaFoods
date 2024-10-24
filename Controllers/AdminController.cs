@@ -433,15 +433,17 @@ namespace SuvanaFoods.Controllers
         // GET: Admin/ViewOrders
         public IActionResult ViewOrders()
         {
-            // Retrieve current orders (Status: Confirmed, PaymentStatus: Pending)
+            // Retrieve current orders (Status: Confirmed, PaymentStatus: Pending) and include the Customer data
             var currentOrders = _context.Orders
                 .Where(o => o.Status == "Confirmed" && o.PaymentStatus == "Pending")
+                .Include(o => o.Customer) // Include customer to avoid null reference
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
 
-            // Retrieve past orders (Status: Completed or PaymentStatus: Paid)
+            // Retrieve past orders (Status: Completed or PaymentStatus: Paid) and include the Customer data
             var pastOrders = _context.Orders
                 .Where(o => o.Status == "Completed" || o.PaymentStatus == "Paid")
+                .Include(o => o.Customer) // Include customer to avoid null reference
                 .OrderByDescending(o => o.OrderDate)
                 .ToList();
 
@@ -453,6 +455,7 @@ namespace SuvanaFoods.Controllers
 
             return View(viewModel);
         }
+
 
         // GET: Admin/UpdateOrderStatus
         [HttpPost]
