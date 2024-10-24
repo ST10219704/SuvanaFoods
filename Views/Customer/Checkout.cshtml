@@ -70,7 +70,7 @@
                     </tbody>
                 </table>
                 <div class="order-total">
-                    <h4><strong>Total: R @String.Format("{0:F2}", Model.CartItems.Sum(i => i.FoodItem.Price * i.Quantity))</strong></h4>
+                    <h4><strong>Total: R @String.Format("{0:F2}", Model.CartItems.Sum(i => i.FoodItem != null && i.FoodItem.Price != null ? i.FoodItem.Price * i.Quantity : 0))</strong></h4>
                 </div>
 
             </div>

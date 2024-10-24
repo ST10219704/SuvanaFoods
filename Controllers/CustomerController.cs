@@ -424,9 +424,10 @@ namespace SuvanaFoods.Controllers
             {
                 var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
                 var customer = await _context.Customers.FindAsync(customerId);
+
                 var cartItems = await _context.Carts
                     .Where(c => c.CustomerId == customerId)
-                    .Include(c => c.FoodItem)
+                    .Include(c => c.FoodItem) // Ensure FoodItem is included with Price
                     .ToListAsync();
 
                 var order = new Order
@@ -438,9 +439,8 @@ namespace SuvanaFoods.Controllers
                     Status = "Confirmed",
                     PaymentStatus = "Pending",
                     OrderDate = DateTime.Now,
-                    OrderItems = new List<OrderItem>() // Ensure this is initialized
+                    OrderItems = new List<OrderItem>() // Initialize the list
                 };
-
 
                 foreach (var cartItem in cartItems)
                 {
@@ -452,11 +452,12 @@ namespace SuvanaFoods.Controllers
                     order.OrderItems.Add(orderItem);
                 }
 
-                order.Total = (decimal)order.OrderItems
-    .Where(item => item.FoodItem != null && item.FoodItem.Price != null) // Check for null FoodItem or Price
-    .Sum(item => item.FoodItem.Price.GetValueOrDefault() * item.Quantity);
+                // Calculate the total based on the cart items' prices and quantities
+                order.Total = (decimal)cartItems
+                    .Where(item => item.FoodItem != null && item.FoodItem.Price.HasValue) // Check for null FoodItem or Price
+                    .Sum(item => item.FoodItem.Price.GetValueOrDefault() * item.Quantity); // Calculate total
 
-
+                // Add the order to the database and clear the cart
                 _context.Orders.Add(order);
                 _context.Carts.RemoveRange(cartItems); // Clear the cart
                 await _context.SaveChangesAsync();
@@ -490,6 +491,7 @@ namespace SuvanaFoods.Controllers
 
             return RedirectToAction("Login", "Customer");
         }
+
 
 
         public IActionResult OrderConfirmed(int orderId)
