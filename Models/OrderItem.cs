@@ -13,8 +13,6 @@ public partial class OrderItem
 
     public int Quantity { get; set; }
 
-    public virtual ICollection<BookingEvent> BookingEvents { get; set; } = new List<BookingEvent>();
-
     public virtual FoodItem FoodItem { get; set; } = null!;
 
     public virtual Order Order { get; set; } = null!;

@@ -23,6 +23,8 @@ public partial class SuvanaFoodsDbContext : DbContext
 
     public virtual DbSet<Category> Categories { get; set; }
 
+    public virtual DbSet<CateringOrder> CateringOrders { get; set; }
+
     public virtual DbSet<Contact> Contacts { get; set; }
 
     public virtual DbSet<Customer> Customers { get; set; }
@@ -71,18 +73,13 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<BookingEvent>(entity =>
         {
-            entity.HasKey(e => e.BookingId).HasName("PK__BookingE__73951AED533A9DB2");
-
-            entity.ToTable("BookingEvent");
+            entity.HasKey(e => e.BookingId).HasName("PK__BookingE__73951AED7CD34213");
 
             entity.Property(e => e.AdminApproval)
                 .HasMaxLength(20)
                 .IsUnicode(false)
                 .HasDefaultValue("Pending");
             entity.Property(e => e.AdminMessage).IsUnicode(false);
-            entity.Property(e => e.AllocatedStaff)
-                .HasMaxLength(100)
-                .IsUnicode(false);
             entity.Property(e => e.CreatedDate).HasColumnType("datetime");
             entity.Property(e => e.EventDate).HasColumnType("datetime");
             entity.Property(e => e.EventLocation)
@@ -95,28 +92,23 @@ public partial class SuvanaFoodsDbContext : DbContext
             entity.HasOne(d => d.Customer).WithMany(p => p.BookingEvents)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__BookingEv__Custo__6754599E");
-
-            entity.HasOne(d => d.OrderItem).WithMany(p => p.BookingEvents)
-                .HasForeignKey(d => d.OrderItemId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__BookingEv__Order__66603565");
+                .HasConstraintName("FK__BookingEv__Custo__7D439ABD");
         });
 
         modelBuilder.Entity<Cart>(entity =>
         {
-            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B7D61F120C");
+            entity.HasKey(e => e.CartId).HasName("PK__Cart__51BCD7B7D5BC37FF");
 
             entity.ToTable("Cart");
 
             entity.HasOne(d => d.Customer).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Cart__CustomerId__45F365D3");
+                .HasConstraintName("FK__Cart__CustomerId__05D8E0BE");
 
             entity.HasOne(d => d.FoodItem).WithMany(p => p.Carts)
                 .HasForeignKey(d => d.FoodItemId)
-                .HasConstraintName("FK__Cart__FoodItemId__46E78A0C");
+                .HasConstraintName("FK__Cart__FoodItemId__06CD04F7");
         });
 
         modelBuilder.Entity<Category>(entity =>
@@ -128,6 +120,24 @@ public partial class SuvanaFoodsDbContext : DbContext
             entity.Property(e => e.Name)
                 .HasMaxLength(100)
                 .IsUnicode(false);
+        });
+
+        modelBuilder.Entity<CateringOrder>(entity =>
+        {
+            entity.HasKey(e => e.OrderId).HasName("PK__Catering__C3905BCF7C20A109");
+
+            entity.Property(e => e.CreatedDate).HasColumnType("datetime");
+            entity.Property(e => e.TotalPrice).HasColumnType("decimal(18, 2)");
+
+            entity.HasOne(d => d.Booking).WithMany(p => p.CateringOrders)
+                .HasForeignKey(d => d.BookingId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CateringO__Booki__1332DBDC");
+
+            entity.HasOne(d => d.FoodItem).WithMany(p => p.CateringOrders)
+                .HasForeignKey(d => d.FoodItemId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("FK__CateringO__FoodI__14270015");
         });
 
         modelBuilder.Entity<Contact>(entity =>
@@ -182,7 +192,7 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<FoodItem>(entity =>
         {
-            entity.HasKey(e => e.FoodItemId).HasName("PK__FoodItem__464DC81226EB2493");
+            entity.HasKey(e => e.FoodItemId).HasName("PK__FoodItem__464DC812512B4678");
 
             entity.ToTable("FoodItem");
 
@@ -197,7 +207,7 @@ public partial class SuvanaFoodsDbContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF8F7D738F");
+            entity.HasKey(e => e.OrderId).HasName("PK__Order__C3905BCF02483D4A");
 
             entity.ToTable("Order");
 
@@ -225,24 +235,24 @@ public partial class SuvanaFoodsDbContext : DbContext
             entity.HasOne(d => d.Customer).WithMany(p => p.Orders)
                 .HasForeignKey(d => d.CustomerId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__Order__CustomerI__4CA06362");
+                .HasConstraintName("FK__Order__CustomerI__0C85DE4D");
         });
 
         modelBuilder.Entity<OrderItem>(entity =>
         {
-            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED068197F1ABCF");
+            entity.HasKey(e => e.OrderItemId).HasName("PK__OrderIte__57ED0681C4484BE6");
 
             entity.ToTable("OrderItem");
 
             entity.HasOne(d => d.FoodItem).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.FoodItemId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__FoodI__5070F446");
+                .HasConstraintName("FK__OrderItem__FoodI__10566F31");
 
             entity.HasOne(d => d.Order).WithMany(p => p.OrderItems)
                 .HasForeignKey(d => d.OrderId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK__OrderItem__Order__4F7CD00D");
+                .HasConstraintName("FK__OrderItem__Order__0F624AF8");
         });
 
         modelBuilder.Entity<Payment>(entity =>

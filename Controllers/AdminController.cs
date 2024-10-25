@@ -470,6 +470,68 @@ namespace SuvanaFoods.Controllers
             }
             return RedirectToAction("ViewOrders");
         }
+
+        // GET: Admin/CateringOrders
+        public async Task<IActionResult> CateringOrders()
+        {
+            var cateringOrders = await _context.BookingEvents.ToListAsync();
+
+            // Filter confirmed and denied events
+            var confirmedEvents = cateringOrders
+                .Where(order => order.AdminApproval == "Confirmed")
+                .ToList();
+
+            var deniedEvents = cateringOrders
+                .Where(order => order.AdminApproval == "Denied")
+                .ToList();
+
+            ViewBag.ConfirmedEvents = confirmedEvents; // Pass confirmed events to the view
+            ViewBag.DeniedEvents = deniedEvents; // Pass denied events to the view
+
+            return View(cateringOrders);
+        }
+
+        // POST: Admin/ApproveOrder
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ApproveOrder(int id)
+        {
+            var bookingEvent = await _context.BookingEvents.FindAsync(id);
+            if (bookingEvent == null)
+            {
+                return NotFound();
+            }
+
+            bookingEvent.AdminApproval = "Confirmed"; // Update approval status
+            bookingEvent.AdminMessage = "Your booking has been confirmed."; // Optional confirmation message
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "Booking confirmed successfully!";
+            return RedirectToAction(nameof(CateringOrders));
+        }
+
+        // POST: Admin/DenyCateringOrder
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DenyCateringOrder(int bookingId, string adminMessage)
+        {
+            // Find the booking event by ID
+            var bookingEvent = await _context.BookingEvents.FindAsync(bookingId);
+
+            if (bookingEvent != null)
+            {
+                bookingEvent.AdminApproval = "Denied"; // Set the approval status to Denied
+                bookingEvent.AdminMessage = adminMessage; // Set the admin message
+                await _context.SaveChangesAsync(); // Save the changes
+
+                TempData["SuccessMessage"] = "Catering order denied successfully!";
+            }
+            else
+            {
+                TempData["ErrorMessage"] = "Catering order not found!";
+            }
+
+            return RedirectToAction(nameof(CateringOrders)); // Redirect to the CateringOrders view
+        }
     }
 }
-

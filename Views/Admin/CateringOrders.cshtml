@@ -1,0 +1,171 @@
+﻿@model IEnumerable<SuvanaFoods.Models.BookingEvent>
+
+<h2>Catering Orders</h2>
+
+<h3>Catering Requests</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Booking ID</th>
+            <th>Event Name</th>
+            <th>Event Date</th>
+            <th>Location</th>
+            <th>Guest Number</th>
+            <th>Actions</th>
+            <th>Details</th> <!-- New column for details -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model.Where(o => o.AdminApproval == "Pending"))
+        {
+            <tr>
+                <td>@order.BookingId</td>
+                <td>@order.EventName</td>
+                <td>@order.EventDate.ToString("yyyy-MM-dd")</td>
+                <td>@order.EventLocation</td>
+                <td>@order.GuestNumber</td>
+                <td>
+                    @using (Html.BeginForm("ApproveOrder", "Admin", FormMethod.Post))
+                    {
+                        @Html.Hidden("id", order.BookingId)
+                        <button type="submit" class="btn btn-success">Confirm</button>
+                    }
+                    @using (Html.BeginForm("DenyCateringOrder", "Admin", FormMethod.Post))
+                    {
+                        @Html.Hidden("bookingId", order.BookingId)
+                        @Html.TextArea("adminMessage", new { placeholder = "Reason for denial", @class = "form-control", rows = 2 })
+                        <button type="submit" class="btn btn-danger">Deny</button>
+                    }
+                </td>
+                <td>
+                    <button type="button" class="btn btn-info" onclick="toggleDetails(@order.BookingId)">Show Details</button>
+                </td>
+            </tr>
+            <tr id="details-@order.BookingId" class="order-details" style="display:none;">
+                <td colspan="7">
+                    <strong>Order Details:</strong><br />
+                    <!-- Display additional order details here -->
+                    <ul>
+                        <li>Detail 1: [Add specific detail here]</li>
+                        <li>Detail 2: [Add specific detail here]</li>
+                        <li>Detail 3: [Add specific detail here]</li>
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Add space between sections -->
+<br />
+<br />
+<br />
+
+<h3>Confirmed Orders</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Booking ID</th>
+            <th>Event Name</th>
+            <th>Event Date</th>
+            <th>Location</th>
+            <th>Guest Number</th>
+            <th>Admin Message</th>
+            <th>Details</th> <!-- New column for details -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in ViewBag.ConfirmedEvents)
+        {
+            <tr>
+                <td>@order.BookingId</td>
+                <td>@order.EventName</td>
+                <td>@order.EventDate.ToString("yyyy-MM-dd")</td>
+                <td>@order.EventLocation</td>
+                <td>@order.GuestNumber</td>
+                <td>@order.AdminMessage</td>
+                <td>
+                    <button type="button" class="btn btn-info" onclick="toggleDetails(@order.BookingId)">Show Details</button>
+                </td>
+            </tr>
+            <tr id="details-@order.BookingId" class="order-details" style="display:none;">
+                <td colspan="7">
+                    <strong>Order Details:</strong><br />
+                    <!-- Display additional order details here -->
+                    <ul>
+                        <li>Detail 1: [Add specific detail here]</li>
+                        <li>Detail 2: [Add specific detail here]</li>
+                        <li>Detail 3: [Add specific detail here]</li>
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<!-- Add space between sections -->
+<br />
+<br />
+<br />
+
+<h3>Denied Orders</h3>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Booking ID</th>
+            <th>Event Name</th>
+            <th>Event Date</th>
+            <th>Location</th>
+            <th>Guest Number</th>
+            <th>Admin Message</th>
+            <th>Details</th> <!-- New column for details -->
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in ViewBag.DeniedEvents)
+        {
+            <tr>
+                <td>@order.BookingId</td>
+                <td>@order.EventName</td>
+                <td>@order.EventDate.ToString("yyyy-MM-dd")</td>
+                <td>@order.EventLocation</td>
+                <td>@order.GuestNumber</td>
+                <td>@order.AdminMessage</td>
+                <td>
+                    <button type="button" class="btn btn-info" onclick="toggleDetails(@order.BookingId)">Show Details</button>
+                </td>
+            </tr>
+            <tr id="details-@order.BookingId" class="order-details" style="display:none;">
+                <td colspan="7">
+                    <strong>Order Details:</strong><br />
+                    <!-- Display additional order details here -->
+                    <ul>
+                        <li>Detail 1: [Add specific detail here]</li>
+                        <li>Detail 2: [Add specific detail here]</li>
+                        <li>Detail 3: [Add specific detail here]</li>
+                    </ul>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+@section Scripts {
+    <script>
+        function toggleDetails(bookingId) {
+            const detailsRow = document.getElementById(`details-${bookingId}`);
+            if (detailsRow.style.display === "none") {
+                detailsRow.style.display = "table-row";
+            } else {
+                detailsRow.style.display = "none";
+            }
+        }
+    </script>
+}

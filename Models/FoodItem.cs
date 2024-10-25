@@ -23,5 +23,7 @@ public partial class FoodItem
 
     public virtual ICollection<Cart> Carts { get; set; } = new List<Cart>();
 
+    public virtual ICollection<CateringOrder> CateringOrders { get; set; } = new List<CateringOrder>();
+
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
 }

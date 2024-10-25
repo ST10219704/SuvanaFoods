@@ -1,0 +1,45 @@
+﻿@model SuvanaFoods.Models.BookingEvent
+
+@{
+    ViewBag.Title = "Event Details";
+}
+
+<h2>Event Details</h2>
+
+<div>
+    <h4>Event Information</h4>
+    <p><strong>Event Name:</strong> @Model.EventName</p>
+    <p><strong>Event Date:</strong> @Model.EventDate.ToString("MMMM dd, yyyy")</p>
+    <p><strong>Location:</strong> @Model.EventLocation</p>
+    <p><strong>Number of Guests:</strong> @Model.GuestNumber</p>
+    <p><strong>Created On:</strong> @Model.CreatedDate.ToString("MMMM dd, yyyy")</p>
+</div>
+
+<h4>Menu Orders</h4>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Quantity</th>
+            <th>Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var order in Model.CateringOrders)
+        {
+            <tr>
+                <td>@order.FoodItem.Name</td>
+                <td>@order.Quantity</td>
+                <td>@(order.Quantity * order.FoodItem.Price).ToString("C")</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <h4>Admin Approval Status</h4>
+    <p><strong>Status:</strong> @(Model.AdminApproval == "Confirmed" ? "Confirmed" : "Denied")</p>
+    <p><strong>Admin Message:</strong> @Model.AdminMessage</p>
+</div>
+
+<!-- <a href="@Url.Action("Index", "BookingEvent")" class="btn btn-primary">Back to Events</a> -->

@@ -568,54 +568,110 @@ namespace SuvanaFoods.Controllers
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
 
+        // GET: Create Booking Event
         [HttpGet]
-        public ActionResult BookingEvent()
+        public IActionResult Events()
         {
-            var model = new BookingEvent();
-            return View(model);
+            return View(new BookingEvent()); // Return the booking event view
         }
 
-        // POST: Allows customer to book an event
+
+        // POST: Save the booking event and display the catering menu
         [HttpPost]
-        public async Task<IActionResult> BookingEvent(int orderItemId, string eventName, DateTime eventDate, string eventLocation)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CreateEvents(BookingEvent bookingEvent)
         {
-            // Check if the user is logged in by retrieving the CustomerId from session
-            if (HttpContext.Session.TryGetValue("UserId", out var value))
+            if (HttpContext.Session.TryGetValue("UserId", out var userIdValue))
             {
-                // Validate the inputs
-                if (eventDate < DateTime.Now)
+                int customerId = int.Parse(userIdValue);
+
+                // Retrieve the customer asynchronously
+                var customer = await _context.Customers.FindAsync(customerId);
+                if (customer == null)
                 {
-                    return Json(new { success = false, message = "Invalid date" });
+                    ModelState.AddModelError("", "Customer not found.");
+                    return View("Events", bookingEvent);
                 }
+                    if (ModelState.IsValid)
+                    {
+                        bookingEvent.CustomerId = customerId;
+                        bookingEvent.AdminApproval = "Pending";
+                        bookingEvent.CreatedDate = DateTime.Now;
 
-                var customerId = int.Parse(HttpContext.Session.GetString("UserId"));
-                var existingOrderItem = await _context.OrderItems.FindAsync(orderItemId);
+                        // Add the booking event and save changes asynchronously
+                        _context.BookingEvents.Add(bookingEvent);
+                        await _context.SaveChangesAsync();
 
-                if (existingOrderItem == null)
-                {
-                    return Json(new { success = false, message = "Invalid Order Item." });
-                }
-
-                // Create a new booking event
-                var bookingEvent = new BookingEvent
-                {
-                    EventName = eventName,
-                    EventDate = eventDate,
-                    EventLocation = eventLocation,
-                    CustomerId = customerId,
-                    CreatedDate = DateTime.Now,
-                    AdminApproval = "Pending" // Default status for AdminApproval
-                };
-
-                // Save the new booking event to the database
-                _context.BookingEvents.Add(bookingEvent);
-                await _context.SaveChangesAsync();
-
-                return Json(new { success = true, message = "Event booking created successfully" });
+                        // Set a success message
+                        TempData["SuccessMessage"] = "Event booking created successfully!";
+                        return RedirectToAction("CateringMenu", "Customer");
+                    }
+                
+            }
+            else
+            {
+                // Handle case where user is not logged in
+                return RedirectToAction("Login", "Customer"); // Redirect to login page
             }
 
-            // If the user is not logged in, return an error message
-            return Json(new { success = false, message = "User not logged in" });
+            // Return the Events view with the booking event if invalid
+            return View("Events", bookingEvent); // Specify the view name
+        }
+
+        // GET: Menu
+        public IActionResult CateringMenu()
+        {
+            var menuItems = _context.FoodItems.Where(m => m.IsActive == true).ToList();
+            return View(menuItems); // Return the menu view with active food items
+        }
+
+        // POST: Create Order
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult CateringMenu(List<CateringOrder> orders) // Ensure you have an OrderItem model
+        {
+            if (orders != null && orders.Any(o => o.Quantity > 0)) // Check if any order is selected
+            {
+                foreach (var order in orders)
+                {
+                    if (order.Quantity > 0)
+                    {
+                        // Save to database
+                        _context.CateringOrders.Add(order); // Assuming you have an OrderItem DbSet
+                    }
+                }
+
+                // Save all changes in one call to the database
+                _context.SaveChanges();
+
+                return RedirectToAction("Confirmation"); // Redirect after successful submission
+            }
+
+            ModelState.AddModelError("", "Please select at least one menu item.");
+            return View("CateringMenu", _context.FoodItems.Where(m => m.IsActive == true).ToList()); // Reload the menu items if nothing is selected
+        }
+
+
+        // GET: Confirmation
+        public IActionResult EventDetails()
+        {
+            return View();
+        }
+
+        // GET: Event Details
+        public IActionResult EventDetails(int id)
+        {
+            var bookingEvent = _context.BookingEvents
+                .Include(be => be.CateringOrders) // Include related OrderItems
+                .ThenInclude(oi => oi.FoodItem) // Include FoodItem details for each order
+                .FirstOrDefault(be => be.BookingId == id);
+
+            if (bookingEvent == null)
+            {
+                return NotFound();
+            }
+
+            return View(bookingEvent); // Return the booking event with order details
         }
     }
 }

@@ -65,25 +65,25 @@
             justify-content: center;
             align-items: center;
             flex: 1;
-            padding-top: 100px; 
+            padding-top: 100px;
         }
 
         .content {
             text-align: center;
             width: 80%;
-            color: black; 
+            color: black;
         }
 
             .content h1 {
                 font-size: 3em;
                 margin-bottom: 0.5em;
-                text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7); 
+                text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.7);
             }
 
             .content p {
                 font-size: 1.2em;
                 margin-bottom: 1.5em;
-                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7); 
+                text-shadow: 1px 1px 2px rgba(255, 255, 255, 0.7);
             }
 
         .buttons {
@@ -139,7 +139,7 @@
 
 <div class="Customer-HomePage">
     <div class="sidebar" id="sidebar">
-        <ul class="nav flex-column">         
+        <ul class="nav flex-column">
             <li class="nav-item">
                 <a href="@Url.Action("ContactUs", "Customer")">
                     <i class="fas fa-envelope"></i>
@@ -147,9 +147,15 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a href="@Url.Action("BookingEvent", "Customer")">
+                <a href="@Url.Action("Events", "Customer")">
                     <i class="fas fa-envelope"></i>
                     <span>Book an Event</span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="@Url.Action("EventDetails", "Customer")">
+                    <i class="fas fa-envelope"></i>
+                    <span>Event Details</span>
                 </a>
             </li>
         </ul>

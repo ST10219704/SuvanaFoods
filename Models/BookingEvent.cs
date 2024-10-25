@@ -9,8 +9,6 @@ public partial class BookingEvent
 
     public int CustomerId { get; set; }
 
-    public int OrderItemId { get; set; }
-
     public string EventName { get; set; } = null!;
 
     public DateTime EventDate { get; set; } = DateTime.Now;
@@ -21,13 +19,11 @@ public partial class BookingEvent
 
     public DateTime CreatedDate { get; set; }
 
-    public string? AllocatedStaff { get; set; }
-
     public string AdminApproval { get; set; } = null!;
 
     public string? AdminMessage { get; set; }
 
-    public virtual Customer Customer { get; set; } = null!;
+    public virtual ICollection<CateringOrder> CateringOrders { get; set; } = new List<CateringOrder>();
 
-    public virtual OrderItem OrderItem { get; set; } = null!;
+    public virtual Customer Customer { get; set; } = null!;
 }

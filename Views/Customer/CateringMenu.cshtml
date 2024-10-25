@@ -1,0 +1,36 @@
+﻿@model List<SuvanaFoods.Models.FoodItem>
+
+@{
+    ViewBag.Title = "Catering Menu";
+}
+
+
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["SuccessMessage"]
+    </div>
+}
+
+<h2>Select Menu Items for Your Event</h2>
+
+@using (Html.BeginForm("CateringMenu", "Customer", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    int index = 0; // Initialize index
+
+    foreach (var item in Model)
+    {
+        <div class="form-group">
+            <input type="checkbox" name="orders[@index].MenuItemId" value="@item.FoodItemId" />
+            <span>@item.Name (@item.Price?.ToString("C"))</span>
+            <input type="number" name="orders[@index].Quantity" placeholder="Quantity" min="1" />
+            @Html.ValidationMessage($"orders[{index}].Quantity")
+        </div>
+
+        index++; // Increment index
+    }
+
+    <button type="submit" class="btn btn-primary">Submit Order</button>
+}
