@@ -1,21 +1,44 @@
 version: 2.1
-
-jobs:
-  build:
-    docker:
-      - image: '********** CHANGE ME 1 **********'
+commands: # a reusable command with parameters
+  greeting:
+    parameters:
+      to:
+        default: "world"
+        type: string
     steps:
-      - checkout
-      - run:
-          name: Install dependencies and build project
-          command: ********** CHANGE ME 2 **********
-      - sonarcloud/scan
-
-orbs:
-  sonarcloud: sonarsource/sonarcloud@2.0.0
-
+      - run: echo "Hello <<parameters.to>>"
+jobs:
+  my-job:
+    docker:
+      - image: cimg/base:stable
+    steps:
+      - greeting:
+          to: "My-Name"
 workflows:
-  main:
+  my-workflow:
     jobs:
-      - build:
-          context: SonarCloud
+      - my-job
+
+
+
+# version: 2.1
+
+# jobs:
+#   build:
+#     docker:
+#       - image: '********** CHANGE ME 1 **********'
+#     steps:
+#       - checkout
+#       - run:
+#           name: Install dependencies and build project
+#           command: ********** CHANGE ME 2 **********
+#       - sonarcloud/scan
+
+# orbs:
+#   sonarcloud: sonarsource/sonarcloud@2.0.0
+
+# workflows:
+#   main:
+#     jobs:
+#       - build:
+#           context: SonarCloud
