@@ -417,6 +417,9 @@ namespace SuvanaFoods.Controllers
             return RedirectToAction("Login", "Customer");
         }
 
+        // This code was adapted from Dot Net Tutorials
+        // Web page: Entity Framework Core Database First Approach
+        // Link: https://dotnettutorials.net/lesson/entity-framework-core-database-first-approach/
         [HttpPost]
         public async Task<IActionResult> OrderConfirmed(CheckoutViewModel model)
         {
@@ -440,7 +443,7 @@ namespace SuvanaFoods.Controllers
                     PaymentStatus = "Pending",
                     OrderDate = DateTime.Now,
                     OrderNo = GenerateOrderNumber(), // Assign random OrderNo here
-                    OrderItems = new List<OrderItem>() // Ensure this is initialized
+                    OrderItems = new List<OrderItem>() 
                 };
 
 

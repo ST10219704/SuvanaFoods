@@ -457,6 +457,9 @@ namespace SuvanaFoods.Controllers
         }
 
 
+        // This code was adapted from Dot Net Tutorials
+        // Web page: Entity Framework Core Database First Approach
+        // Link: https://dotnettutorials.net/lesson/entity-framework-core-database-first-approach/
         // GET: Admin/UpdateOrderStatus
         [HttpPost]
         public IActionResult UpdateOrderStatus(int id, string status, string paymentStatus)
