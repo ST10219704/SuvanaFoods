@@ -15,14 +15,21 @@
         {
             <tr>
                 <td rowspan="@dailyIncome.Orders.Count + 1">@dailyIncome.Date.ToString("yyyy-MM-dd")</td>
+                @if (dailyIncome.Orders.Count > 0)
+                {
+                    <td>@dailyIncome.Orders[0].OrderNo</td>
+                    <td>@dailyIncome.Orders[0].Total.ToString("C")</td>
+                }
             </tr>
-            @foreach (var order in dailyIncome.Orders)
+
+            @for (int i = 1; i < dailyIncome.Orders.Count; i++)
             {
                 <tr>
-                    <td>@order.OrderNo</td>
-                    <td>@order.Total.ToString("C")</td>
+                    <td>@dailyIncome.Orders[i].OrderNo</td>
+                    <td>@dailyIncome.Orders[i].Total.ToString("C")</td>
                 </tr>
             }
+
             <tr>
                 <td colspan="2" class="text-end"><strong>Daily Total:</strong></td>
                 <td><strong>@dailyIncome.DailyTotal.ToString("C")</strong></td>
