@@ -1,0 +1,32 @@
+﻿@model List<SuvanaFoods.Models.DailyIncomeViewModel>
+
+<h2>Daily Income Report</h2>
+
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Order No</th>
+            <th>Total</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var dailyIncome in Model)
+        {
+            <tr>
+                <td rowspan="@dailyIncome.Orders.Count + 1">@dailyIncome.Date.ToString("yyyy-MM-dd")</td>
+            </tr>
+            @foreach (var order in dailyIncome.Orders)
+            {
+                <tr>
+                    <td>@order.OrderNo</td>
+                    <td>@order.Total.ToString("C")</td>
+                </tr>
+            }
+            <tr>
+                <td colspan="2" class="text-end"><strong>Daily Total:</strong></td>
+                <td><strong>@dailyIncome.DailyTotal.ToString("C")</strong></td>
+            </tr>
+        }
+    </tbody>
+</table>

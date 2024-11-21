@@ -533,5 +533,28 @@ namespace SuvanaFoods.Controllers
 
             return RedirectToAction(nameof(CateringOrders)); // Redirect to the CateringOrders view
         }
+
+        public async Task<IActionResult> DailyIncomeReport()
+        {
+            var dailyIncome = await _context.Orders
+                .Where(o => o.Status == "Completed" && o.PaymentStatus == "Paid" && o.Total > 0) // Filter valid orders
+                .GroupBy(o => o.OrderDate.Value.Date) // Group by date, handling nulls
+                .Select(group => new DailyIncomeViewModel
+                {
+                    Date = group.Key,
+                    Orders = group.Select(o => new OrderSummary
+                    {
+                        OrderNo = o.OrderId,
+                        Total = o.Total
+                    }).ToList(),
+                    DailyTotal = group.Sum(o => o.Total)
+                })
+                .OrderBy(d => d.Date)
+                .ToListAsync();
+
+            return View(dailyIncome);
+        }
+
+
     }
 }
